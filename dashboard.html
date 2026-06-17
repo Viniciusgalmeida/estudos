@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Dashboard</title>
+  <style>
+    body {
+      font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 4rem 2rem 6rem;
+      color: #111;
+      background: #fffff8;
+      line-height: 1.65;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: normal;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.2rem;
+    }
+    .meta {
+      color: #888;
+      font-size: 0.85rem;
+      margin: 0 0 3.5rem;
+    }
+    .subject {
+      margin-bottom: 2.75rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: normal;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #555;
+      border-bottom: 1px solid #e0e0d8;
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.9rem;
+    }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px dotted #e8e8e0;
+    }
+    li:last-child { border-bottom: none; }
+    .num {
+      font-family: "Courier New", monospace;
+      font-size: 0.75rem;
+      color: #bbb;
+      flex-shrink: 0;
+      width: 1.5rem;
+    }
+    a {
+      color: #222;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+    a:hover {
+      border-bottom-color: #555;
+    }
+    footer {
+      margin-top: 4rem;
+      color: #aaa;
+      font-size: 0.78rem;
+      font-family: "Courier New", monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Study Dashboard</h1>
+  <p class="meta">Generated June 17, 2026 &middot; 5 lessons across 2 subjects</p>
+
+  <section class="subject">
+    <h2>Fundamentals Of Software Architecture</h2>
+    <ul>
+      <li><span class="num">01</span><a href="./fundamentals-of-software-architecture/lessons/0001-expectations-of-an-architect.html" target="_blank">Expectations of an Architect</a></li>
+      <li><span class="num">02</span><a href="./fundamentals-of-software-architecture/lessons/0002-four-dimensions-of-software-architecture.html" target="_blank">The Four Dimensions of Software Architecture</a></li>
+      <li><span class="num">03</span><a href="./fundamentals-of-software-architecture/lessons/0003-laws-of-software-architecture.html" target="_blank">The Laws of Software Architecture</a></li>
+      <li><span class="num">04</span><a href="./fundamentals-of-software-architecture/lessons/0004-technical-breadth.html" target="_blank">Technical Breadth:The Architect's Hidden Skill</a></li>
+    </ul>
+  </section>
+
+  <section class="subject">
+    <h2>The Pragmatic Programmer</h2>
+    <ul>
+      <li><span class="num">01</span><a href="./the-pragmatic-programmer/lessons/0001-software-entropy-broken-windows.html" target="_blank">Software Entropy &amp; Broken Windows</a></li>
+    </ul>
+  </section>
+
+  <footer>npm run dashboard &mdash; regenerate after adding lessons</footer>
+</body>
+</html>

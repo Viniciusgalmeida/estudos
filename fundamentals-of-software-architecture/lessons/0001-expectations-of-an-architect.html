@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 1 — Expectations of an Architect</title>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #555;
+      --accent: #1a56a0;
+      --bg: #faf9f7;
+      --card: #fff;
+      --border: #e0ddd8;
+      --correct: #166534;
+      --correct-bg: #dcfce7;
+      --wrong: #991b1b;
+      --wrong-bg: #fee2e2;
+      --tag-bg: #eef2ff;
+      --tag-ink: #3730a3;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Georgia", serif;
+      font-size: 18px;
+      line-height: 1.7;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 6rem;
+    }
+    .chapter-tag {
+      display: inline-block;
+      background: var(--tag-bg);
+      color: var(--tag-ink);
+      font-family: system-ui, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 1.2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+      color: var(--ink);
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      font-style: italic;
+      margin-bottom: 2.5rem;
+    }
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-top: 2.5rem;
+      margin-bottom: 0.6rem;
+      color: var(--ink);
+    }
+    p { margin-bottom: 1rem; }
+    .mission-box {
+      border-left: 3px solid var(--accent);
+      padding: 0.8rem 1.2rem;
+      background: #f0f5ff;
+      border-radius: 0 6px 6px 0;
+      margin: 2rem 0;
+      font-size: 0.95rem;
+    }
+    .mission-box strong { color: var(--accent); }
+
+    /* Expectation cards */
+    .expectations-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+    }
+    .exp-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+    }
+    .exp-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.7rem;
+      margin-bottom: 0.3rem;
+    }
+    .exp-num {
+      font-family: system-ui, sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--tag-bg);
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .exp-title {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .exp-body {
+      font-size: 0.93rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .dev-note {
+      font-size: 0.83rem;
+      color: var(--accent);
+      margin-top: 0.4rem;
+      font-style: italic;
+    }
+
+    /* Divider */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* Quiz */
+    .quiz-section h2 { margin-top: 0; }
+    .quiz-intro {
+      font-size: 0.93rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .question-block { margin-bottom: 2rem; }
+    .question-text {
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      font-size: 0.97rem;
+    }
+    .options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .option-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.65rem 1rem;
+      text-align: left;
+      font-size: 0.93rem;
+      font-family: "Georgia", serif;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      color: var(--ink);
+    }
+    .option-btn:hover:not(:disabled) { background: #f0f5ff; border-color: var(--accent); }
+    .option-btn:disabled { cursor: default; }
+    .option-btn.correct { background: var(--correct-bg); border-color: var(--correct); color: var(--correct); font-weight: 600; }
+    .option-btn.wrong { background: var(--wrong-bg); border-color: var(--wrong); color: var(--wrong); }
+    .feedback {
+      margin-top: 0.6rem;
+      font-size: 0.88rem;
+      min-height: 1.2rem;
+      color: var(--muted);
+      display: none;
+    }
+    .feedback.show { display: block; }
+
+    /* Score */
+    #score-box {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+    #score-box.show { display: block; }
+    #score-text { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+    #score-sub { font-size: 0.9rem; color: var(--muted); }
+
+    /* Source */
+    .source-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 2rem 0;
+      font-size: 0.9rem;
+    }
+    .source-block strong { display: block; margin-bottom: 0.3rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-family: system-ui, sans-serif; }
+    .source-block a { color: var(--accent); }
+
+    /* Footer */
+    .footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <div class="chapter-tag">Ch. 1 · p. 28 · Lesson 1</div>
+  <h1>Expectations of an Architect</h1>
+  <p class="subtitle">Fundamentals of Software Architecture — Richards &amp; Ford, 2020</p>
+
+  <div class="mission-box">
+    <strong>Why this matters to you:</strong> You don't need to be an architect to think like one. Every senior developer makes micro-architecture decisions daily — which pattern to use, how to structure a module boundary, when to push back on a design. These eight expectations define the mental model you're building toward.
+  </div>
+
+  <h2>The Eight Expectations</h2>
+  <p>Richards &amp; Ford define the role of a software architect through eight core expectations. These aren't job requirements — they're the <em>behaviors</em> that distinguish architectural thinking from pure implementation thinking.</p>
+
+  <div class="expectations-grid">
+
+    <div class="exp-card">
+      <div class="exp-header">
+        <span class="exp-num">01</span>
+        <span class="exp-title">Make architecture decisions</span>
+      </div>
+      <p class="exp-body">Define the architecture decisions and design principles that guide technology choices across the team — not make every decision, but set the guardrails others work within.</p>
+      <p class="dev-note">→ As a developer: when you propose "we should use event sourcing here," you're doing this at small scale.</p>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-header">
+        <span class="exp-num">02</span>
+        <span class="exp-title">Continually analyze the architecture</span>
+      </div>
+      <p class="exp-body">Regularly assess the current architecture and technology environment, identify weaknesses, and recommend improvements — even when nothing is broken yet.</p>
+      <p class="dev-note">→ As a developer: noticing that a service is accumulating too many responsibilities is this skill in action.</p>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-header">
+        <span class="exp-num">03</span>
+        <span class="exp-title">Keep current with latest trends</span>
+      </div>
+      <p class="exp-body">Track industry trends and emerging technologies — not to chase hype, but to know what options exist when trade-offs need to be made.</p>
+      <p class="dev-note">→ As a developer: this is what separates someone who picks the right tool from someone who only knows the tool they learned first.</p>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-header">
+        <span class="exp-num">04</span>
+        <span class="exp-title">Ensure compliance with decisions</span>
+      </div>
+      <p class="exp-body">Verify that development teams are following the agreed-upon architectural decisions and design principles — through code review, pairing, and tooling, not just documentation.</p>
+      <p class="dev-note">→ As a developer: understanding <em>why</em> a decision exists makes you more likely to follow it (and push back correctly when it shouldn't apply).</p>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-header">
+        <span class="exp-num">05</span>
+        <span class="exp-title">Diverse exposure and experience</span>
+      </div>
+      <p class="exp-body">Have breadth across technologies, frameworks, platforms, and environments — not depth in one. An architect who only knows one stack has a single lens for every problem.</p>
+      <p class="dev-note">→ As a developer: this is why senior devs intentionally pick up unfamiliar problems rather than staying in their comfort zone.</p>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-header">
+        <span class="exp-num">06</span>
+        <span class="exp-title">Have business domain knowledge</span>
+      </div>
+      <p class="exp-body">Understand the business domain well enough to align architectural decisions with business goals. Technical excellence that contradicts business needs is a liability, not an asset.</p>
+      <p class="dev-note">→ As a developer: knowing <em>why</em> a feature matters lets you make better trade-offs when implementing it.</p>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-header">
+        <span class="exp-num">07</span>
+        <span class="exp-title">Possess interpersonal skills</span>
+      </div>
+      <p class="exp-body">Teamwork, facilitation, and negotiation. Architecture happens through people. The best technical decision rejected by the team is worse than a good-enough decision everyone follows.</p>
+      <p class="dev-note">→ As a developer: this is why "being right" isn't enough — you need to bring people along.</p>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-header">
+        <span class="exp-num">08</span>
+        <span class="exp-title">Understand and navigate politics</span>
+      </div>
+      <p class="exp-body">Almost every significant architectural decision will be challenged. Architects must navigate organizational dynamics to get good decisions implemented — not as compromise, but as skill.</p>
+      <p class="dev-note">→ As a developer: watch how senior engineers propose changes. The technical argument is only part of the pitch.</p>
+    </div>
+
+  </div>
+
+  <div class="source-block">
+    <strong>Primary source</strong>
+    <em>Fundamentals of Software Architecture</em>, Ch. 1 — Mark Richards &amp; Neal Ford (O'Reilly, 2020), pp. 28–35.<br>
+    Authors' video series: <a href="https://www.youtube.com/c/MarkRichards-SoftwareArchitect" target="_blank">Software Architecture Monday — Mark Richards (YouTube)</a>
+  </div>
+
+  <hr>
+
+  <div class="quiz-section">
+    <h2>Recall Check</h2>
+    <p class="quiz-intro">Close your notes. Read each question and pick your answer. You'll get immediate feedback. The goal is to <em>retrieve</em> — not recognize.</p>
+
+    <!-- Q1 -->
+    <div class="question-block" id="q1">
+      <p class="question-text">1. An architect's job is to make every technical decision in the system. True or false?</p>
+      <div class="options">
+        <button class="option-btn" onclick="answer('q1', this, false)">True — architects own all decisions</button>
+        <button class="option-btn" onclick="answer('q1', this, true)">False — they set guardrails, teams make decisions within them</button>
+      </div>
+      <p class="feedback" id="q1-fb">Correct. Expectation #1 is about setting decision guardrails and design principles, not micromanaging every choice.</p>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block" id="q2">
+      <p class="question-text">2. Which expectation most directly explains why a senior developer should deliberately work with unfamiliar technologies?</p>
+      <div class="options">
+        <button class="option-btn" onclick="answer('q2', this, false)">Ensure compliance with decisions</button>
+        <button class="option-btn" onclick="answer('q2', this, true)">Diverse exposure and experience</button>
+        <button class="option-btn" onclick="answer('q2', this, false)">Keep current with latest trends</button>
+      </div>
+      <p class="feedback" id="q2-fb">Correct. Expectation #5 is specifically about breadth — having experience across many technologies so you can reason about options rather than defaulting to what you already know.</p>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block" id="q3">
+      <p class="question-text">3. A technically superior architecture that the team refuses to adopt is:</p>
+      <div class="options">
+        <button class="option-btn" onclick="answer('q3', this, false)">A success — correctness matters most</button>
+        <button class="option-btn" onclick="answer('q3', this, true)">A failure — adoption is required for architecture to exist</button>
+        <button class="option-btn" onclick="answer('q3', this, false)">Irrelevant to an architect's expectations</button>
+      </div>
+      <p class="feedback" id="q3-fb">Correct. Expectation #7 (interpersonal skills) exists precisely because the best decision unimplemented is useless. Architecture is a social act.</p>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block" id="q4">
+      <p class="question-text">4. Name the two expectations that are explicitly about people and organizational dynamics (not technology).</p>
+      <div class="options">
+        <button class="option-btn" onclick="answer('q4', this, false)">Business domain knowledge &amp; diverse exposure</button>
+        <button class="option-btn" onclick="answer('q4', this, true)">Interpersonal skills &amp; navigate politics</button>
+        <button class="option-btn" onclick="answer('q4', this, false)">Compliance &amp; continual analysis</button>
+      </div>
+      <p class="feedback" id="q4-fb">Correct. Expectations #7 and #8 are explicitly human/organizational. The book devotes significant space to these because they surprise most technically-minded people who assume architecture is purely technical.</p>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block" id="q5">
+      <p class="question-text">5. Why does an architect need business domain knowledge?</p>
+      <div class="options">
+        <button class="option-btn" onclick="answer('q5', this, false)">To replace product managers on the team</button>
+        <button class="option-btn" onclick="answer('q5', this, false)">To write better user stories</button>
+        <button class="option-btn" onclick="answer('q5', this, true)">To align architectural decisions with business goals</button>
+      </div>
+      <p class="feedback" id="q5-fb">Correct. Expectation #6 — technical decisions divorced from business context create architectures that are correct in a vacuum but harmful in practice.</p>
+    </div>
+
+    <div id="score-box">
+      <p id="score-text"></p>
+      <p id="score-sub"></p>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="footer">
+    <p><strong>Ask your teacher anything.</strong> If any of the eight expectations are unclear, or you want to explore how they connect to real decisions — type your question. That's what the teacher is here for.</p>
+    <p style="margin-top:0.8rem;">Next: continue Ch. 1 or return to <a href="../reference/">reference documents</a>.</p>
+  </div>
+
+  <script>
+    const totals = { correct: 0, answered: 0, total: 5 };
+
+    function answer(qId, btn, isCorrect) {
+      const block = document.getElementById(qId);
+      const buttons = block.querySelectorAll('.option-btn');
+      const fb = document.getElementById(qId + '-fb');
+
+      buttons.forEach(b => {
+        b.disabled = true;
+        if (b === btn) {
+          b.classList.add(isCorrect ? 'correct' : 'wrong');
+        }
+      });
+
+      fb.classList.add('show');
+      if (!isCorrect) {
+        fb.textContent = 'Not quite. ' + fb.textContent;
+        fb.style.color = '#991b1b';
+      }
+
+      totals.answered++;
+      if (isCorrect) totals.correct++;
+
+      if (totals.answered === totals.total) showScore();
+    }
+
+    function showScore() {
+      const box = document.getElementById('score-box');
+      const text = document.getElementById('score-text');
+      const sub = document.getElementById('score-sub');
+      const pct = Math.round((totals.correct / totals.total) * 100);
+
+      text.textContent = totals.correct + ' / ' + totals.total + ' correct (' + pct + '%)';
+
+      if (pct === 100) sub.textContent = 'Strong recall. The eight expectations are solid in your memory.';
+      else if (pct >= 60) sub.textContent = 'Good start. Re-read the cards you missed, then try again tomorrow (spacing helps retention).';
+      else sub.textContent = 'Re-read the eight expectations above, then come back and retake without looking.';
+
+      box.classList.add('show');
+    }
+  </script>
+
+</body>
+</html>

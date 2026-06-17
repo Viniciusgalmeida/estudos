@@ -1,0 +1,12 @@
+{
+  "name": "estudos",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dashboard": "tsx generate-dashboard.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.21",
+    "tsx": "^4.22.4"
+  }
+}

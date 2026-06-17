@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 4 — Technical Breadth: The Architect's Hidden Skill</title>
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --text: #1a1a1a;
+        --muted: #6b6b6b;
+        --accent: #2c5f2e;
+        --accent-light: #e8f4e8;
+        --danger: #8b1a1a;
+        --danger-light: #fdf0f0;
+        --border: #d8d0c4;
+        --code-bg: #f0ece4;
+        --link: #2c5f2e;
+        --warn: #7a5c00;
+        --warn-light: #fdf8e1;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: "Georgia", "Times New Roman", serif;
+        font-size: 18px;
+        line-height: 1.7;
+        color: var(--text);
+        background: var(--bg);
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 60px 24px 80px;
+      }
+
+      h1 { font-size: 1.9rem; font-weight: normal; margin-bottom: 6px; line-height: 1.25; }
+      h2 {
+        font-size: 1.1rem; font-weight: bold; margin: 44px 0 14px;
+        letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted);
+      }
+      h3 { font-size: 1.05rem; font-weight: bold; margin: 28px 0 8px; }
+
+      .subtitle { font-size: 0.9rem; color: var(--muted); margin-bottom: 40px; }
+      .meta { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; }
+
+      p { margin-bottom: 1.2em; }
+
+      .callout {
+        border-left: 3px solid var(--accent);
+        background: var(--accent-light);
+        padding: 14px 18px;
+        margin: 28px 0;
+        font-size: 0.97rem;
+      }
+      .callout.warn {
+        border-left-color: var(--warn);
+        background: var(--warn-light);
+      }
+
+      blockquote {
+        border-left: 3px solid var(--border);
+        margin: 24px 0;
+        padding: 10px 18px;
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      /* ── Knowledge Pyramid ── */
+      .pyramid-wrapper {
+        margin: 32px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .pyramid-label {
+        font-size: 0.78rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 4px;
+        text-align: center;
+      }
+      .tier {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.88rem;
+        font-weight: bold;
+        color: #fff;
+        text-align: center;
+        line-height: 1.3;
+        padding: 0 12px;
+        clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+      }
+      .tier-1 { width: 220px; height: 56px; background: #2c5f2e; }
+      .tier-2 { width: 380px; height: 68px; background: #4a7c59; }
+      .tier-3 { width: 540px; height: 72px; background: #7a9e8a; color: #1a1a1a; }
+
+      .tier-labels {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin: 12px 0 32px;
+        font-size: 0.82rem;
+        color: var(--muted);
+        text-align: center;
+      }
+      .tier-labels span { padding: 4px 6px; }
+
+      /* ── Comparison table ── */
+      .compare {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+        font-size: 0.92rem;
+      }
+      .compare th {
+        background: var(--code-bg);
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        border-bottom: 2px solid var(--border);
+      }
+      .compare td {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      .compare tr:last-child td { border-bottom: none; }
+      .good { color: var(--accent); font-weight: bold; }
+      .caution { color: var(--warn); font-weight: bold; }
+
+      /* ── Quiz ── */
+      .quiz-section { margin-top: 48px; }
+      .quiz-item { margin-bottom: 32px; }
+      .quiz-q { font-weight: bold; margin-bottom: 12px; }
+      .options { display: grid; gap: 8px; }
+      .option {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.93rem;
+        background: var(--bg);
+        transition: background 0.15s, border-color 0.15s;
+        user-select: none;
+      }
+      .option:hover { background: var(--code-bg); }
+      .option.correct { background: var(--accent-light); border-color: var(--accent); }
+      .option.wrong { background: var(--danger-light); border-color: var(--danger); }
+      .feedback {
+        display: none;
+        margin-top: 10px;
+        font-size: 0.88rem;
+        padding: 10px 14px;
+        border-radius: 4px;
+        line-height: 1.5;
+      }
+      .feedback.show { display: block; }
+      .feedback.correct { background: var(--accent-light); color: var(--accent); }
+      .feedback.wrong { background: var(--danger-light); color: var(--danger); }
+
+      footer {
+        margin-top: 64px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      footer a { color: var(--link); }
+      a { color: var(--link); }
+
+      .nav-links {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+        font-size: 0.85rem;
+      }
+      .nav-links a { color: var(--link); }
+
+      hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+    </style>
+  </head>
+  <body>
+
+    <div class="meta">Fundamentals of Software Architecture · Chapter 2</div>
+    <h1>Technical Breadth:<br>The Architect's Hidden Skill</h1>
+    <p class="subtitle">Lesson 4 of the Fundamentals of Software Architecture track</p>
+
+    <div class="nav-links">
+      <a href="0003-laws-of-software-architecture.html">← Lesson 3: The Laws</a>
+      <a href="../reference/">Reference →</a>
+    </div>
+
+    <h2>The Core Idea</h2>
+
+    <p>
+      Every developer carries a knowledge pyramid — three zones of knowing.
+      What separates architects from developers isn't <em>how much</em> they know.
+      It's <em>which zone they optimize for</em>.
+    </p>
+
+    <div class="pyramid-wrapper">
+      <div class="pyramid-label">The Knowledge Pyramid</div>
+      <div class="tier tier-1">Stuff You Know</div>
+      <div class="tier tier-2">Stuff You Know<br>You Don't Know</div>
+      <div class="tier tier-3">Stuff You Don't Know<br>You Don't Know</div>
+    </div>
+
+    <div class="tier-labels">
+      <span><strong>Expertise</strong><br>Your technical depth</span>
+      <span><strong>Awareness</strong><br>Your technical breadth</span>
+      <span><strong>Blind spots</strong><br>Unknown unknowns</span>
+    </div>
+
+    <p>
+      As a developer, you naturally optimize for the top tier — go deep on a stack,
+      master a language, become the expert in your domain. This is correct for a developer.
+      Depth is what makes you effective.
+    </p>
+
+    <p>
+      An architect's job is different. They are rarely the deepest expert in any one thing.
+      Instead, they need to evaluate a <em>wide surface</em> of options — caching strategies,
+      message queue topologies, consistency models — and pick the right trade-off for the context.
+      That requires awareness, not mastery.
+    </p>
+
+    <div class="callout">
+      <strong>The shift:</strong> Developers maximize the top. Architects maximize the middle.<br>
+      Technical breadth — the size of your awareness zone — is the defining skill of architectural thinking.
+    </div>
+
+    <h2>Why Breadth &gt; Depth for Architects</h2>
+
+    <p>
+      Imagine a team asks: "Should we use Redis, Memcached, or Hazelcast for our caching layer?"
+      A developer who is a Redis expert will advocate for Redis — that's their depth talking.
+      An architect who has <em>awareness</em> of all three can evaluate each against the actual constraints:
+      persistence needs, clustering model, team familiarity, operational cost.
+    </p>
+
+    <p>
+      The danger of deep expertise for architects is called <strong>confirmation bias by familiarity</strong>:
+      you reach for tools you know deeply, even when they are a poor fit.
+    </p>
+
+    <table class="compare">
+      <tr>
+        <th>Role</th>
+        <th>Optimize for</th>
+        <th>Risk if you don't</th>
+      </tr>
+      <tr>
+        <td>Developer</td>
+        <td class="good">Depth — mastery of your stack</td>
+        <td>Slow, unpredictable, hard to maintain</td>
+      </tr>
+      <tr>
+        <td>Architect</td>
+        <td class="good">Breadth — awareness of many options</td>
+        <td>Reaches for familiar tools even when wrong fit</td>
+      </tr>
+    </table>
+
+    <h2>The Transition Trap</h2>
+
+    <p>
+      Richards and Ford identify a trap that catches most developers on their way to architect:
+      they keep investing in depth — learning more about their current stack — when the
+      career-advancing move is to deliberately widen their pyramid.
+    </p>
+
+    <div class="callout warn">
+      <strong>The trap:</strong> Becoming an expert in a second framework gives you a taller top tier.
+      Learning <em>how</em> five frameworks approach state management — without mastering any one of them —
+      expands your middle tier. That is the architectural investment.
+    </div>
+
+    <p>
+      This is uncomfortable. Breadth-building feels less productive. You never feel like an expert.
+      You are constantly in the "I know enough to evaluate this, but not enough to build it" zone.
+      That discomfort is the job.
+    </p>
+
+    <h2>What This Means For You Now</h2>
+
+    <p>
+      You don't need to abandon depth — your current stack depth is an asset.
+      But when you encounter new technology, ask a different question.
+    </p>
+
+    <blockquote>
+      Instead of: "Should I learn this deeply?"<br>
+      Ask: "Do I know enough about this to evaluate it against alternatives?"
+    </blockquote>
+
+    <p>
+      Architectural breadth compounds over time. Every technology you gain <em>awareness</em> of —
+      even at a shallow level — is another option you can reason about when trade-offs come up.
+      Start treating "I know what this is and when to reach for it" as a win,
+      even without the depth to implement it.
+    </p>
+
+    <h2>Balancing Architecture and Hands-On Coding</h2>
+
+    <p>
+      Breadth matters — but architects who stop coding entirely become a different kind of problem.
+      Disconnected from the real codebase, they give advice that sounds right but doesn't survive contact
+      with actual constraints. Richards and Ford call this the <strong>Frozen Caveman</strong> anti-pattern:
+      an architect so out of touch with current technology that they reflexively reach for outdated solutions,
+      or reject new approaches they don't understand.
+    </p>
+
+    <p>
+      The opposite trap: an architect who codes too much becomes a bottleneck. Features wait on their
+      availability. The team can't ship without them. The big-picture view gets lost in implementation details.
+    </p>
+
+    <div class="callout warn">
+      <strong>The tension:</strong> Too little coding → ivory-tower advice, lost credibility.<br>
+      Too much coding → bottleneck, lost perspective. Neither extreme works.
+    </div>
+
+    <h3>How to Stay Technical Without Blocking the Team</h3>
+
+    <p>The book offers concrete tactics for staying grounded without owning critical-path work:</p>
+
+    <table class="compare">
+      <tr>
+        <th>Tactic</th>
+        <th>Why it works</th>
+      </tr>
+      <tr>
+        <td><strong>Proof-of-concept (PoC) code</strong></td>
+        <td>Validates architectural decisions hands-on. Hand off before it becomes a dependency.</td>
+      </tr>
+      <tr>
+        <td><strong>Technical debt reduction</strong></td>
+        <td>Valuable, visible, non-blocking. Keeps you in the codebase without owning features.</td>
+      </tr>
+      <tr>
+        <td><strong>Bug fixes</strong></td>
+        <td>Direct contact with what's actually broken. No team blocked on your availability.</td>
+      </tr>
+      <tr>
+        <td><strong>Code reviews</strong></td>
+        <td>Awareness of what's being built without generating throughput dependency.</td>
+      </tr>
+      <tr>
+        <td><strong>Automation and tooling</strong></td>
+        <td>High team leverage. Keeps skills sharp on work that multiplies others' output.</td>
+      </tr>
+    </table>
+
+    <p>
+      The rule of thumb: roughly <strong>20% hands-on time</strong>. Enough to stay credible and grounded;
+      not enough to block the team on your availability.
+    </p>
+
+    <div class="callout">
+      <strong>For you now:</strong> You're still on the developer side — this isn't a signal to code less.
+      It's a warning for later. The instinct to stop coding when you step into senior/architect responsibilities
+      ("that's not my job anymore") is the trap. The architects who give bad advice are usually the ones who fell for it.
+    </div>
+
+    <hr>
+
+    <h2>Retrieval Practice</h2>
+    <p style="font-size:0.9rem; color: var(--muted); margin-bottom: 24px;">
+      Answer from memory. Don't scroll up. Each question has one right answer.
+    </p>
+
+    <div class="quiz-section" id="quiz">
+
+      <div class="quiz-item">
+        <div class="quiz-q">1. What does the middle tier of the knowledge pyramid represent?</div>
+        <div class="options">
+          <div class="option" data-correct="false" onclick="answer(this)">Things you can implement without looking them up</div>
+          <div class="option" data-correct="true"  onclick="answer(this)">Things you know exist but haven't mastered in depth</div>
+          <div class="option" data-correct="false" onclick="answer(this)">Things you've used in production at least once</div>
+          <div class="option" data-correct="false" onclick="answer(this)">Things outside the scope of your current role</div>
+        </div>
+        <div class="feedback" id="fb-0"></div>
+      </div>
+
+      <div class="quiz-item">
+        <div class="quiz-q">2. Why should an architect optimize for breadth rather than depth?</div>
+        <div class="options">
+          <div class="option" data-correct="false" onclick="answer(this)">Architects are generalists who rarely go deep on anything</div>
+          <div class="option" data-correct="false" onclick="answer(this)">Deep expertise is only useful for individual contributors</div>
+          <div class="option" data-correct="true"  onclick="answer(this)">Architects evaluate trade-offs across many solutions, which requires awareness of all of them</div>
+          <div class="option" data-correct="false" onclick="answer(this)">Breadth signals seniority, which earns organizational trust</div>
+        </div>
+        <div class="feedback" id="fb-1"></div>
+      </div>
+
+      <div class="quiz-item">
+        <div class="quiz-q">3. What is the "transition trap" developers fall into on the path to architect?</div>
+        <div class="options">
+          <div class="option" data-correct="false" onclick="answer(this)">Focusing on soft skills instead of technical skills</div>
+          <div class="option" data-correct="false" onclick="answer(this)">Spending too much time in architecture discussions and losing coding skill</div>
+          <div class="option" data-correct="true"  onclick="answer(this)">Continuing to invest in depth when the career-advancing move is widening awareness</div>
+          <div class="option" data-correct="false" onclick="answer(this)">Learning too many frameworks and losing mastery of any single one</div>
+        </div>
+        <div class="feedback" id="fb-2"></div>
+      </div>
+
+      <div class="quiz-item">
+        <div class="quiz-q">4. What bias affects architects who have deep expertise in one technology?</div>
+        <div class="options">
+          <div class="option" data-correct="false" onclick="answer(this)">They underestimate implementation complexity for teams less skilled than themselves</div>
+          <div class="option" data-correct="true"  onclick="answer(this)">They reach for familiar tools even when a different option is a better fit</div>
+          <div class="option" data-correct="false" onclick="answer(this)">They resist adopting newer technologies out of attachment to their expertise</div>
+          <div class="option" data-correct="false" onclick="answer(this)">They over-engineer solutions to justify their depth of knowledge</div>
+        </div>
+        <div class="feedback" id="fb-3"></div>
+      </div>
+
+      <div class="quiz-item">
+        <div class="quiz-q">5. What is the "Frozen Caveman" anti-pattern?</div>
+        <div class="options">
+          <div class="option" data-correct="false" onclick="answer(this)">An architect who codes too much and becomes a bottleneck for the team</div>
+          <div class="option" data-correct="true"  onclick="answer(this)">An architect disconnected from current tech who gives outdated advice</div>
+          <div class="option" data-correct="false" onclick="answer(this)">An architect who refuses to document decisions or explain trade-offs</div>
+          <div class="option" data-correct="false" onclick="answer(this)">An architect who avoids new technology to protect their existing expertise</div>
+        </div>
+        <div class="feedback" id="fb-4"></div>
+      </div>
+
+      <div class="quiz-item">
+        <div class="quiz-q">6. Which tactic lets an architect stay hands-on without blocking the team?</div>
+        <div class="options">
+          <div class="option" data-correct="false" onclick="answer(this)">Own a core feature end-to-end each sprint to demonstrate technical credibility</div>
+          <div class="option" data-correct="true"  onclick="answer(this)">Write proof-of-concept code to validate decisions, then hand off before it becomes a dependency</div>
+          <div class="option" data-correct="false" onclick="answer(this)">Pair with developers full-time so architectural intent is preserved in implementation</div>
+          <div class="option" data-correct="false" onclick="answer(this)">Review all pull requests before merge to maintain codebase awareness</div>
+        </div>
+        <div class="feedback" id="fb-5"></div>
+      </div>
+
+    </div>
+
+    <hr>
+
+    <h2>Primary Source</h2>
+    <p>
+      <strong>Fundamentals of Software Architecture</strong> (2020), Mark Richards &amp; Neal Ford —
+      Chapter 2: Architectural Thinking, pp. 35–52. The knowledge pyramid is on pp. 39–42.
+      Read the "Technical Breadth" section closely — the pyramid diagram is the anchor for everything in this lesson.
+    </p>
+
+    <h2>Questions?</h2>
+    <p>
+      Ask your teacher (this agent) anything that's unclear — a concept that didn't click,
+      a scenario you want to reason through, or how this connects to work you're doing right now.
+      That's what the teacher is for.
+    </p>
+
+    <footer>
+      <p>
+        Lesson 4 · <a href="0003-laws-of-software-architecture.html">← Lesson 3</a> ·
+        <a href="../reference/">Reference docs</a>
+      </p>
+      <p style="margin-top: 8px;">Fundamentals of Software Architecture track · 2026</p>
+    </footer>
+
+    <script>
+      const feedbacks = [
+        {
+          correct: "Right. The middle tier is your <em>awareness zone</em> — things you've heard of, can evaluate, and know when to reach for, without being a hands-on expert. This is technical breadth.",
+          wrong: "Not quite. The middle tier is about <em>awareness</em>: you know these technologies exist and roughly what they do, but haven't mastered them. It's not about production experience or implementation speed."
+        },
+        {
+          correct: "Exactly. Architectural decisions are about selecting among options. You can't evaluate what you've never heard of. Breadth expands the solution space you can reason over.",
+          wrong: "The real reason is trade-off evaluation. Architects don't reject depth — they need breadth because their primary job is picking among alternatives, which requires knowing those alternatives exist and roughly how they compare."
+        },
+        {
+          correct: "Yes. It feels productive to go deeper on something you already know. But architectural value comes from expanding awareness — which feels uncomfortable precisely because you're never the expert.",
+          wrong: "The trap is subtler: developers keep investing in <em>depth</em> (learning one more framework deeply) when the architecturally valuable move is widening <em>breadth</em> (gaining shallow awareness of many things)."
+        },
+        {
+          correct: "Correct. This is confirmation bias by familiarity. You reach for Redis because you know Redis — even when Hazelcast or a different model fits the actual constraints better.",
+          wrong: "The specific bias is reaching for <em>familiar tools</em> regardless of fit. Deep expertise creates a gravitational pull toward using what you know, which can lead to poor architectural choices."
+        },
+        {
+          correct: "Right. The Frozen Caveman is about <em>disconnection</em> from current technology — not over-coding. The result is advice that sounds authoritative but doesn't fit modern constraints.",
+          wrong: "The Frozen Caveman is about architects who <em>stopped</em> coding and lost touch with current tech. The name captures it: frozen in a past era, giving advice based on how things worked years ago."
+        },
+        {
+          correct: "Yes. PoC work is the key tactic — you write just enough code to validate the decision, prove it works, then hand off before the team depends on your availability to maintain it.",
+          wrong: "Owning features, full-time pairing, and mandatory PR review all create throughput dependency — the team can't move without you. PoC work is the right model: validate and hand off."
+        }
+      ];
+
+      function answer(el) {
+        const item = el.closest('.quiz-item');
+        if (item.dataset.answered) return;
+        item.dataset.answered = 'true';
+
+        const idx = [...document.querySelectorAll('.quiz-item')].indexOf(item);
+        const isCorrect = el.dataset.correct === 'true';
+        const fb = document.getElementById('fb-' + idx);
+
+        item.querySelectorAll('.option').forEach(o => {
+          o.style.pointerEvents = 'none';
+          if (o.dataset.correct === 'true') o.classList.add('correct');
+        });
+        if (!isCorrect) el.classList.add('wrong');
+
+        fb.innerHTML = feedbacks[idx][isCorrect ? 'correct' : 'wrong'];
+        fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
+      }
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 2 — The Four Dimensions of Software Architecture</title>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #555;
+      --accent: #1a56a0;
+      --bg: #faf9f7;
+      --card: #fff;
+      --border: #e0ddd8;
+      --correct: #166534;
+      --correct-bg: #dcfce7;
+      --wrong: #991b1b;
+      --wrong-bg: #fee2e2;
+      --tag-bg: #eef2ff;
+      --tag-ink: #3730a3;
+      --d1: #7c3aed; /* structure */
+      --d2: #0369a1; /* characteristics */
+      --d3: #b45309; /* decisions */
+      --d4: #15803d; /* principles */
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Georgia", serif;
+      font-size: 18px;
+      line-height: 1.7;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 6rem;
+    }
+    .chapter-tag {
+      display: inline-block;
+      background: var(--tag-bg);
+      color: var(--tag-ink);
+      font-family: system-ui, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 1.2rem;
+    }
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.4rem; }
+    .subtitle { color: var(--muted); font-size: 1rem; font-style: italic; margin-bottom: 2.5rem; }
+    h2 { font-size: 1.15rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 0.6rem; }
+    p { margin-bottom: 1rem; }
+
+    .mission-box {
+      border-left: 3px solid var(--accent);
+      padding: 0.8rem 1.2rem;
+      background: #f0f5ff;
+      border-radius: 0 6px 6px 0;
+      margin: 2rem 0;
+      font-size: 0.95rem;
+    }
+    .mission-box strong { color: var(--accent); }
+
+    /* The big insight callout */
+    .insight {
+      background: #1a1a1a;
+      color: #f5f5f5;
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+      margin: 2rem 0;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .insight em { color: #fbbf24; font-style: normal; font-weight: 600; }
+
+    /* Dimension cards */
+    .dim-grid { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0 2rem; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .dim-card { padding: 1.1rem 1.3rem; border-bottom: 1px solid var(--border); background: var(--card); }
+    .dim-card:last-child { border-bottom: none; }
+    .dim-header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 0.35rem; }
+    .dim-label {
+      font-family: system-ui, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .d1 .dim-label { background: #ede9fe; color: var(--d1); }
+    .d2 .dim-label { background: #e0f2fe; color: var(--d2); }
+    .d3 .dim-label { background: #fef3c7; color: var(--d3); }
+    .d4 .dim-label { background: #dcfce7; color: var(--d4); }
+    .dim-title { font-weight: 700; font-size: 1.02rem; }
+    .dim-body { font-size: 0.93rem; color: var(--muted); line-height: 1.55; }
+    .dim-examples { margin-top: 0.5rem; font-size: 0.82rem; color: var(--muted); font-family: system-ui, sans-serif; }
+    .dim-examples span { display: inline-block; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 0.1rem 0.45rem; margin: 0.15rem 0.2rem 0 0; }
+
+    /* Contrast box */
+    .contrast {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .contrast-cell {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .contrast-cell .label { font-family: system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; color: var(--muted); }
+    .contrast-cell.rule .label { color: var(--d3); }
+    .contrast-cell.guideline .label { color: var(--d4); }
+    .contrast-cell p { font-size: 0.88rem; margin: 0; line-height: 1.5; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+    /* Quiz */
+    .quiz-intro { font-size: 0.93rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .question-block { margin-bottom: 2rem; }
+    .question-text { font-weight: 600; margin-bottom: 0.8rem; font-size: 0.97rem; }
+    .options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .option-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.65rem 1rem;
+      text-align: left;
+      font-size: 0.93rem;
+      font-family: "Georgia", serif;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      color: var(--ink);
+    }
+    .option-btn:hover:not(:disabled) { background: #f0f5ff; border-color: var(--accent); }
+    .option-btn:disabled { cursor: default; }
+    .option-btn.correct { background: var(--correct-bg); border-color: var(--correct); color: var(--correct); font-weight: 600; }
+    .option-btn.wrong { background: var(--wrong-bg); border-color: var(--wrong); color: var(--wrong); }
+    .feedback { margin-top: 0.6rem; font-size: 0.88rem; min-height: 1.2rem; color: var(--muted); display: none; }
+    .feedback.show { display: block; }
+
+    #score-box { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center; margin-top: 2rem; }
+    #score-box.show { display: block; }
+    #score-text { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+    #score-sub { font-size: 0.9rem; color: var(--muted); }
+
+    .source-block { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin: 2rem 0; font-size: 0.9rem; }
+    .source-block strong { display: block; margin-bottom: 0.3rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-family: system-ui, sans-serif; }
+    .source-block a { color: var(--accent); }
+
+    .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 0.88rem; color: var(--muted); }
+    .footer a { color: var(--accent); }
+    .spaced-rep { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.88rem; margin-top: 1rem; }
+    .spaced-rep strong { color: #92400e; }
+  </style>
+</head>
+<body>
+
+  <div class="chapter-tag">Ch. 1 · pp. 1–8 · Lesson 2</div>
+  <h1>The Four Dimensions of Software Architecture</h1>
+  <p class="subtitle">Fundamentals of Software Architecture — Richards &amp; Ford, 2020</p>
+
+  <div class="mission-box">
+    <strong>Why this is the most important concept from pp. 1–8:</strong> Every other chapter in this book adds detail to one of these four dimensions. If you retain only one framework from Ch. 1, it's this one — it gives you a vocabulary for every design conversation you'll ever have.
+  </div>
+
+  <div class="insight">
+    The single biggest mistake developers make when discussing architecture is confusing <em>structure</em> for the whole picture. Saying "we use microservices" describes one dimension. Software architecture is defined by <em>four dimensions working together</em>.
+  </div>
+
+  <h2>The Four Dimensions</h2>
+
+  <div class="dim-grid">
+
+    <div class="dim-card d1">
+      <div class="dim-header">
+        <span class="dim-label">Dimension 1</span>
+        <span class="dim-title">Structure</span>
+      </div>
+      <p class="dim-body">The type of architecture style implemented. This is what most people mean when they say "the architecture" — but it's only one piece.</p>
+      <div class="dim-examples">
+        <span>microservices</span><span>layered</span><span>pipeline</span><span>microkernel</span><span>event-driven</span>
+      </div>
+    </div>
+
+    <div class="dim-card d2">
+      <div class="dim-header">
+        <span class="dim-label">Dimension 2</span>
+        <span class="dim-title">Architecture Characteristics</span>
+      </div>
+      <p class="dim-body">The success criteria of the system — the "-ilities." These define <em>what the system must do well</em>, independent of what it does. Two systems can share the same structure but have radically different characteristics.</p>
+      <div class="dim-examples">
+        <span>availability</span><span>scalability</span><span>performance</span><span>security</span><span>testability</span><span>deployability</span><span>fault tolerance</span>
+      </div>
+    </div>
+
+    <div class="dim-card d3">
+      <div class="dim-header">
+        <span class="dim-label">Dimension 3</span>
+        <span class="dim-title">Architecture Decisions</span>
+      </div>
+      <p class="dim-body">The <strong>rules</strong> for how the system must be constructed. These are constraints — explicit, binding, and enforceable. Breaking them requires an explicit decision to do so.</p>
+      <div class="dim-examples">
+        <span>"only the service layer may access the DB"</span><span>"no cross-service DB joins"</span>
+      </div>
+    </div>
+
+    <div class="dim-card d4">
+      <div class="dim-header">
+        <span class="dim-label">Dimension 4</span>
+        <span class="dim-title">Design Principles</span>
+      </div>
+      <p class="dim-body"><strong>Guidelines</strong>, not rules. Preferred approaches that teams should follow but may deviate from with good reason. They guide without constraining.</p>
+      <div class="dim-examples">
+        <span>"prefer async messaging for inter-service calls"</span><span>"avoid shared libraries where possible"</span>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>The Critical Distinction: Decisions vs. Principles</h2>
+  <p>These two dimensions trip people up most often. The difference is binding force:</p>
+
+  <div class="contrast">
+    <div class="contrast-cell rule">
+      <div class="label">Architecture Decision (Rule)</div>
+      <p>"Services must not share a database." Violation requires an architecture change request. Non-negotiable.</p>
+    </div>
+    <div class="contrast-cell guideline">
+      <div class="label">Design Principle (Guideline)</div>
+      <p>"Prefer async messaging for performance." A team may use sync HTTP with justification. Negotiable.</p>
+    </div>
+  </div>
+
+  <div class="source-block">
+    <strong>Primary source</strong>
+    <em>Fundamentals of Software Architecture</em>, Ch. 1 — Mark Richards &amp; Neal Ford (O'Reilly, 2020), pp. 1–8.<br>
+    Video companion: <a href="https://www.youtube.com/c/MarkRichards-SoftwareArchitect" target="_blank">Software Architecture Monday — Mark Richards (YouTube)</a>
+  </div>
+
+  <hr>
+
+  <h2>Recall Check</h2>
+  <p class="quiz-intro">No peeking. Retrieve from memory. These questions test application, not just label recognition.</p>
+
+  <!-- Q1 -->
+  <div class="question-block" id="q1">
+    <p class="question-text">1. Your team says: "Our architecture is microservices." Which single dimension have they described?</p>
+    <div class="options">
+      <button class="option-btn" onclick="answer('q1',this,false)">Architecture characteristics</button>
+      <button class="option-btn" onclick="answer('q1',this,true)">Structure</button>
+      <button class="option-btn" onclick="answer('q1',this,false)">Architecture decisions</button>
+      <button class="option-btn" onclick="answer('q1',this,false)">Design principles</button>
+    </div>
+    <p class="feedback" id="q1-fb">Correct. "Microservices" is a structure — Dimension 1. It tells you the style, but nothing about the -ilities, the rules, or the guidelines. The common mistake is treating this single dimension as if it describes the full architecture.</p>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-block" id="q2">
+    <p class="question-text">2. A new system must handle 100k concurrent users and recover from failures within 30 seconds. Which dimension captures these requirements?</p>
+    <div class="options">
+      <button class="option-btn" onclick="answer('q2',this,false)">Structure</button>
+      <button class="option-btn" onclick="answer('q2',this,true)">Architecture characteristics</button>
+      <button class="option-btn" onclick="answer('q2',this,false)">Architecture decisions</button>
+      <button class="option-btn" onclick="answer('q2',this,false)">Design principles</button>
+    </div>
+    <p class="feedback" id="q2-fb">Correct. Scalability and recoverability are architecture characteristics — the -ilities. Dimension 2 defines success criteria independent of the system's domain logic.</p>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-block" id="q3">
+    <p class="question-text">3. "No service may directly call another service's database." This is an example of:</p>
+    <div class="options">
+      <button class="option-btn" onclick="answer('q3',this,false)">A design principle — teams can deviate with reason</button>
+      <button class="option-btn" onclick="answer('q3',this,true)">An architecture decision — a binding rule</button>
+      <button class="option-btn" onclick="answer('q3',this,false)">A structure choice</button>
+    </div>
+    <p class="feedback" id="q3-fb">Correct. It's phrased as a hard constraint ("may not"), so it's Dimension 3 — an architecture decision. If it were a design principle, it would say "avoid" or "prefer not to," and a team could deviate with justification.</p>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-block" id="q4">
+    <p class="question-text">4. "Prefer asynchronous communication between services when latency permits." This is:</p>
+    <div class="options">
+      <button class="option-btn" onclick="answer('q4',this,false)">An architecture decision</button>
+      <button class="option-btn" onclick="answer('q4',this,true)">A design principle</button>
+      <button class="option-btn" onclick="answer('q4',this,false)">An architecture characteristic</button>
+    </div>
+    <p class="feedback" id="q4-fb">Correct. "Prefer" signals a guideline, not a rule. Dimension 4 — design principles — allows deviation. The team can use sync HTTP if there's a valid reason.</p>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-block" id="q5">
+    <p class="question-text">5. Two systems both use a layered architecture. One needs 99.99% uptime, the other needs 99%. Which dimension makes them architecturally different even though their structure is the same?</p>
+    <div class="options">
+      <button class="option-btn" onclick="answer('q5',this,false)">Structure</button>
+      <button class="option-btn" onclick="answer('q5',this,false)">Design principles</button>
+      <button class="option-btn" onclick="answer('q5',this,true)">Architecture characteristics</button>
+      <button class="option-btn" onclick="answer('q5',this,false)">Architecture decisions</button>
+    </div>
+    <p class="feedback" id="q5-fb">Correct. This is the key insight: same structure, different architectures. Availability (an architecture characteristic — Dimension 2) changes everything about how redundancy, failover, and deployment are designed, even inside the same structural style.</p>
+  </div>
+
+  <div id="score-box">
+    <p id="score-text"></p>
+    <p id="score-sub"></p>
+  </div>
+
+  <hr>
+
+  <div class="footer">
+    <p><strong>Ask your teacher anything.</strong> Confused about any dimension? Want a real-world scenario to test your understanding? Ask — that's what this session is for.</p>
+
+    <div class="spaced-rep">
+      <strong>For long-term retention:</strong> Come back to this lesson in 3–4 days and take the quiz again <em>without re-reading the cards</em>. The difficulty of retrieval is what builds storage strength — not re-reading.
+    </div>
+
+    <p style="margin-top:1.2rem;">Previous: <a href="./0001-expectations-of-an-architect.html">Lesson 1 — Expectations of an Architect</a></p>
+  </div>
+
+  <script>
+    const totals = { correct: 0, answered: 0, total: 5 };
+
+    function answer(qId, btn, isCorrect) {
+      const block = document.getElementById(qId);
+      const buttons = block.querySelectorAll('.option-btn');
+      const fb = document.getElementById(qId + '-fb');
+
+      buttons.forEach(b => {
+        b.disabled = true;
+        if (b === btn) b.classList.add(isCorrect ? 'correct' : 'wrong');
+      });
+
+      fb.classList.add('show');
+      if (!isCorrect) {
+        fb.textContent = 'Not quite. ' + fb.textContent;
+        fb.style.color = '#991b1b';
+      }
+
+      totals.answered++;
+      if (isCorrect) totals.correct++;
+      if (totals.answered === totals.total) showScore();
+    }
+
+    function showScore() {
+      const box = document.getElementById('score-box');
+      const pct = Math.round((totals.correct / totals.total) * 100);
+      document.getElementById('score-text').textContent =
+        totals.correct + ' / ' + totals.total + ' correct (' + pct + '%)';
+      document.getElementById('score-sub').textContent =
+        pct === 100 ? 'The four dimensions are locked in. Return in 3–4 days to reinforce storage strength.' :
+        pct >= 60  ? 'Good start. Re-read the dimension you missed, then revisit in a few days without looking.' :
+                     'Revisit the four cards above, then come back to the quiz without peeking. The re-reading is part of the learning.';
+      box.classList.add('show');
+    }
+  </script>
+
+</body>
+</html>

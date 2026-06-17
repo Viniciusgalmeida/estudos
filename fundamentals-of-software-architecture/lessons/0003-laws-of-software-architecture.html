@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 3 — The Laws of Software Architecture</title>
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --text: #1a1a1a;
+        --muted: #6b6b6b;
+        --accent: #2c5f2e;
+        --accent-light: #e8f4e8;
+        --danger: #8b1a1a;
+        --danger-light: #fdf0f0;
+        --border: #d8d0c4;
+        --code-bg: #f0ece4;
+        --link: #2c5f2e;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Georgia", "Times New Roman", serif;
+        font-size: 18px;
+        line-height: 1.7;
+        color: var(--text);
+        background: var(--bg);
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 60px 24px 80px;
+      }
+
+      h1 {
+        font-size: 1.9rem;
+        font-weight: normal;
+        margin-bottom: 6px;
+        line-height: 1.25;
+      }
+      h2 {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin: 44px 0 14px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      h3 {
+        font-size: 1.05rem;
+        font-weight: bold;
+        margin: 28px 0 8px;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin-bottom: 40px;
+        font-style: italic;
+      }
+
+      p {
+        margin-bottom: 1.1em;
+      }
+
+      .law-block {
+        background: var(--accent-light);
+        border-left: 4px solid var(--accent);
+        padding: 20px 24px;
+        margin: 28px 0;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .law-block .law-label {
+        font-size: 0.75rem;
+        font-weight: bold;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+
+      .law-block .law-text {
+        font-size: 1.15rem;
+        font-weight: bold;
+        line-height: 1.4;
+        margin: 0;
+      }
+
+      .law-block .law-corollary {
+        font-size: 0.88rem;
+        color: var(--muted);
+        margin-top: 10px;
+        font-style: italic;
+      }
+
+      .insight {
+        background: var(--danger-light);
+        border-left: 4px solid var(--danger);
+        padding: 18px 22px;
+        margin: 28px 0;
+        border-radius: 0 4px 4px 0;
+        font-size: 0.95rem;
+      }
+
+      .insight strong {
+        color: var(--danger);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+        font-size: 0.92rem;
+      }
+
+      th {
+        text-align: left;
+        padding: 10px 14px;
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+      }
+
+      td {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+
+      tr:nth-child(even) td {
+        background: #f5f2ed;
+      }
+
+      code {
+        font-family: "Menlo", "Monaco", "Courier New", monospace;
+        font-size: 0.85em;
+        background: var(--code-bg);
+        padding: 2px 6px;
+        border-radius: 3px;
+        border: 1px solid var(--border);
+      }
+
+      .nav-links {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 36px;
+      }
+
+      .nav-links a {
+        color: var(--link);
+        text-decoration: none;
+      }
+      .nav-links a:hover {
+        text-decoration: underline;
+      }
+      .nav-links span {
+        margin: 0 6px;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 44px 0;
+      }
+
+      /* Quiz */
+      .quiz-section {
+        margin-top: 48px;
+      }
+
+      .quiz-question {
+        margin-bottom: 32px;
+        padding: 22px 24px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+
+      .quiz-question p.prompt {
+        font-weight: bold;
+        margin-bottom: 14px;
+      }
+
+      .quiz-question .scenario {
+        font-style: italic;
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-bottom: 14px;
+        line-height: 1.5;
+      }
+
+      .quiz-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .quiz-options label {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+        padding: 9px 12px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        font-size: 0.95rem;
+        transition: background 0.15s;
+      }
+
+      .quiz-options label:hover {
+        background: var(--code-bg);
+      }
+
+      .quiz-options input[type="radio"] {
+        margin-top: 3px;
+        flex-shrink: 0;
+      }
+
+      .feedback {
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        display: none;
+      }
+
+      .feedback.correct {
+        background: var(--accent-light);
+        color: #1a3d1a;
+        border: 1px solid #9fcb9f;
+        display: block;
+      }
+      .feedback.wrong {
+        background: var(--danger-light);
+        color: #5a0e0e;
+        border: 1px solid #d9a0a0;
+        display: block;
+      }
+
+      .check-btn {
+        margin-top: 12px;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .check-btn:hover {
+        background: #1e4320;
+      }
+
+      .score-display {
+        margin-top: 32px;
+        padding: 22px 24px;
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        text-align: center;
+        display: none;
+      }
+
+      .score-display h3 {
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+      }
+      .score-display p {
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin: 0;
+      }
+
+      .spaced-rep {
+        margin-top: 40px;
+        padding: 16px 20px;
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 0.88rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .ask-teacher {
+        margin-top: 36px;
+        padding: 16px 20px;
+        border: 1px dashed var(--border);
+        border-radius: 4px;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav-links">
+      <a href="0001-expectations-of-an-architect.html"
+        >← Lesson 1: Expectations</a
+      >
+      <span>·</span>
+      <a href="0002-four-dimensions-of-software-architecture.html"
+        >← Lesson 2: Four Dimensions</a
+      >
+      <span>·</span>
+      Lesson 3
+    </div>
+
+    <h1>The Laws of Software Architecture</h1>
+    <p class="subtitle">
+      Fundamentals of Software Architecture · Chapter 1, pp. 9–20 · Richards
+      &amp; Ford (2020)
+    </p>
+
+    <h2>Why this matters for a senior developer</h2>
+
+    <p>
+      Junior developers look for the right answer. Senior developers — and
+      architects — look for the best trade-off. This is not a philosophical
+      distinction. It is a practical skill gap, and it shows up in every
+      technical discussion, every PR, every design meeting.
+    </p>
+
+    <p>
+      Chapter 1, pages 9–20 contains two laws that reframe how you think about
+      every architectural decision you'll ever make. Learn them now, and they
+      become a lens you apply automatically.
+    </p>
+
+    <hr />
+
+    <h2>First Law: Everything is a trade-off</h2>
+
+    <div class="law-block">
+      <div class="law-label">First Law of Software Architecture</div>
+      <p class="law-text">
+        Everything in software architecture is a trade-off.
+      </p>
+      <p class="law-corollary">
+        Corollary: If an architect thinks they have discovered something that
+        isn't a trade-off, more likely they just haven't identified the
+        trade-off yet.
+      </p>
+    </div>
+
+    <p>
+      This law has a specific target: the instinct to hunt for the "correct"
+      architecture. That instinct is natural — school rewards right answers. But
+      architecture has no right answers. Every decision you make trades one
+      thing for another.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Decision</th>
+          <th>You gain</th>
+          <th>You give up</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Microservices over monolith</td>
+          <td>Independent deployability, team autonomy</td>
+          <td>Operational complexity, distributed system overhead</td>
+        </tr>
+        <tr>
+          <td>Event-driven async communication</td>
+          <td>Decoupling, scalability</td>
+          <td>Traceability, debuggability, eventual consistency complexity</td>
+        </tr>
+        <tr>
+          <td>Shared database across services</td>
+          <td>Simplicity, easy joins</td>
+          <td>Team coupling, deployment coordination</td>
+        </tr>
+        <tr>
+          <td>Caching layer</td>
+          <td>Performance</td>
+          <td>Data freshness, invalidation complexity</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      The corollary is important: if you're looking at a pattern and thinking
+      "this seems strictly better," you're not done looking. The trade-off
+      exists. You haven't found it yet.
+    </p>
+
+    <div class="insight">
+      <strong>What this changes in your daily work:</strong> When someone
+      proposes a solution in a technical discussion, the senior-level move is
+      not "does this work?" — it's <em>"what does this cost us?"</em> The law
+      gives you the framework to ask that question without it sounding like
+      criticism.
+    </div>
+
+    <hr />
+
+    <h2>Second Law: Why beats how</h2>
+
+    <div class="law-block">
+      <div class="law-label">Second Law of Software Architecture</div>
+      <p class="law-text">Why is more important than how.</p>
+    </div>
+
+    <p>
+      The <em>how</em> is visible in the code. The <em>why</em> evaporates the
+      moment the meeting ends.
+    </p>
+
+    <p>
+      Six months later, nobody remembers why the team chose eventual consistency
+      over strong consistency, or why that service was split out, or why that
+      constraint exists. The code shows the decision. Nothing shows the
+      reasoning — unless someone captured it.
+    </p>
+
+    <p>
+      This is why Architecture Decision Records (ADRs) exist. They are a direct
+      application of the Second Law: capture the <em>why</em> so the decision
+      can be evaluated, revised, or reversed with context intact.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Situation</th>
+          <th>How (always visible)</th>
+          <th>Why (must be captured)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Service boundary</td>
+          <td>UserService calls PaymentService via REST</td>
+          <td>Split because payment team needed independent deploy cadence</td>
+        </tr>
+        <tr>
+          <td>Eventual consistency</td>
+          <td>Events on Kafka, consumer processes asynchronously</td>
+          <td>
+            Read volume was 10x write; team prioritized read availability over
+            immediacy
+          </td>
+        </tr>
+        <tr>
+          <td>Code comment</td>
+          <td><code>x = x * 0.95</code></td>
+          <td>
+            <code>// 5% platform fee agreed in contract v2, Nov 2023</code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      The Second Law also applies at the code level. Code comments that say
+      <em>what</em> the code does are redundant. Comments that say
+      <em>why</em> it does it are valuable — they preserve intent that the code
+      itself can't express.
+    </p>
+
+    <hr />
+
+    <h2>How the two laws connect</h2>
+
+    <p>
+      They are two sides of the same idea. If everything is a trade-off (First
+      Law), then the thing most worth capturing is why you made this trade-off
+      rather than another (Second Law). The decision is visible in the code. The
+      reasoning is not.
+    </p>
+
+    <p>
+      Together:
+      <strong
+        >there are no right answers, only contextual trade-offs — and the
+        context is what you must preserve.</strong
+      >
+    </p>
+
+    <hr />
+
+    <h2>Quiz — retrieve from memory</h2>
+    <p style="font-size: 0.9rem; color: var(--muted)">
+      Don't look up. Answer from memory. Submit each question before moving to
+      the next.
+    </p>
+
+    <div class="quiz-section" id="quiz">
+      <div class="quiz-question" id="q1">
+        <p class="prompt">
+          1. Complete the First Law: "Everything in software architecture is
+          ___."
+        </p>
+        <div class="quiz-options">
+          <label><input type="radio" name="q1" value="a" /> a trade-off</label>
+          <label
+            ><input type="radio" name="q1" value="b" /> a design decision</label
+          >
+          <label><input type="radio" name="q1" value="c" /> a constraint</label>
+          <label
+            ><input type="radio" name="q1" value="d" /> a best practice</label
+          >
+        </div>
+        <button
+          class="check-btn"
+          onclick="
+            check(
+              'q1',
+              'a',
+              'Correct. Every architectural choice gains something and costs something. There are no free wins.',
+            )
+          "
+        >
+          Check
+        </button>
+        <div class="feedback" id="q1-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q2">
+        <p class="prompt">
+          2. Your team is debating microservices. A colleague says:
+          "Microservices are just strictly better — faster deploys, smaller
+          codebases, clear ownership." What does the First Law tell you?
+        </p>
+        <div class="quiz-options">
+          <label
+            ><input type="radio" name="q2" value="a" /> They're right —
+            microservices are better for most systems</label
+          >
+          <label
+            ><input type="radio" name="q2" value="b" /> They haven't found the
+            trade-off yet</label
+          >
+          <label
+            ><input type="radio" name="q2" value="c" /> They're wrong —
+            monoliths are better</label
+          >
+          <label
+            ><input type="radio" name="q2" value="d" /> The law doesn't apply to
+            deployment topology</label
+          >
+        </div>
+        <button
+          class="check-btn"
+          onclick="
+            check(
+              'q2',
+              'b',
+              'Correct. The corollary: if you think something has no trade-off, you haven\'t identified it yet. Microservices gain independence but cost operational complexity, distributed tracing, and network latency.',
+            )
+          "
+        >
+          Check
+        </button>
+        <div class="feedback" id="q2-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q3">
+        <p class="prompt">
+          3. Six months after a design meeting, a developer asks why the team
+          uses eventual consistency for order updates. Nobody remembers. Which
+          law does this violate?
+        </p>
+        <div class="quiz-options">
+          <label
+            ><input type="radio" name="q3" value="a" /> First Law — trade-off
+            wasn't evaluated</label
+          >
+          <label
+            ><input type="radio" name="q3" value="b" /> Second Law — why wasn't
+            captured</label
+          >
+          <label
+            ><input type="radio" name="q3" value="c" /> Both laws equally</label
+          >
+          <label
+            ><input type="radio" name="q3" value="d" /> Neither — this is a
+            documentation problem, not an architecture law</label
+          >
+        </div>
+        <button
+          class="check-btn"
+          onclick="
+            check(
+              'q3',
+              'b',
+              'Correct. The how is visible in the code (async events). The why — the reasoning behind the trade-off — evaporated. Second Law: why is more important than how, and must be preserved.',
+            )
+          "
+        >
+          Check
+        </button>
+        <div class="feedback" id="q3-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q4">
+        <p class="prompt">
+          4. You find a comment in the codebase:
+          <code>// multiplied by 0.95</code>. Is this a good application of the
+          Second Law?
+        </p>
+        <div class="quiz-options">
+          <label
+            ><input type="radio" name="q4" value="a" /> Yes — it explains what
+            the code does</label
+          >
+          <label
+            ><input type="radio" name="q4" value="b" /> No — it repeats what the
+            code already shows</label
+          >
+          <label
+            ><input type="radio" name="q4" value="c" /> No — comments should
+            never be used</label
+          >
+          <label
+            ><input type="radio" name="q4" value="d" /> Yes — any comment is
+            better than none</label
+          >
+        </div>
+        <button
+          class="check-btn"
+          onclick="
+            check(
+              'q4',
+              'b',
+              'Correct. The comment says HOW, not WHY. The code already shows multiplication by 0.95. A Second-Law comment would say: // 5% platform fee per contract v2 — that preserves intent the code cannot.',
+            )
+          "
+        >
+          Check
+        </button>
+        <div class="feedback" id="q4-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q5">
+        <p class="prompt">5. How do the First and Second Laws relate?</p>
+        <div class="quiz-options">
+          <label
+            ><input type="radio" name="q5" value="a" /> They don't — the First
+            is about patterns, the Second is about documentation</label
+          >
+          <label
+            ><input type="radio" name="q5" value="b" /> The Second explains how
+            to comply with the First</label
+          >
+          <label
+            ><input type="radio" name="q5" value="c" /> Since every decision is
+            a trade-off, what matters most to preserve is the reasoning behind
+            that trade-off</label
+          >
+          <label
+            ><input type="radio" name="q5" value="d" /> The First Law only
+            applies to distributed systems</label
+          >
+        </div>
+        <button
+          class="check-btn"
+          onclick="
+            check(
+              'q5',
+              'c',
+              'Correct. First Law: no right answers, only trade-offs. Second Law: the thing most worth capturing is why you chose this trade-off. The decision lives in the code; the context does not.',
+            )
+          "
+        >
+          Check
+        </button>
+        <div class="feedback" id="q5-fb"></div>
+      </div>
+
+      <div class="score-display" id="score-box">
+        <h3 id="score-title"></h3>
+        <p id="score-msg"></p>
+      </div>
+    </div>
+
+    <div class="spaced-rep">
+      <strong>Spaced repetition:</strong> Return to this quiz in 3–4 days
+      without re-reading the lesson. Recall, not recognition, is what builds
+      long-term retention. If you score under 4/5, review and return again in 2
+      days.
+    </div>
+
+    <div class="ask-teacher">
+      <strong>Questions?</strong> Ask your teacher directly in the Claude Code
+      session — type your question and they'll respond in context.
+    </div>
+
+    <script>
+      const answers = {};
+      let checked = {};
+      let correctCount = 0;
+
+      function check(qid, correct, explanation) {
+        const selected = document.querySelector(`input[name="${qid}"]:checked`);
+        if (!selected) return;
+        if (checked[qid]) return;
+
+        checked[qid] = true;
+        const fb = document.getElementById(`${qid}-fb`);
+        const isCorrect = selected.value === correct;
+
+        if (isCorrect) {
+          correctCount++;
+          fb.className = "feedback correct";
+          fb.textContent = "✓ " + explanation;
+        } else {
+          fb.className = "feedback wrong";
+          fb.textContent = "✗ " + explanation;
+        }
+
+        if (Object.keys(checked).length === 5) showScore();
+      }
+
+      function showScore() {
+        const box = document.getElementById("score-box");
+        const title = document.getElementById("score-title");
+        const msg = document.getElementById("score-msg");
+
+        box.style.display = "block";
+        title.textContent = `${correctCount}/5`;
+
+        const msgs = {
+          5: "Strong storage. Come back in 3–4 days to lock it in.",
+          4: "Solid. One gap — re-read that question's explanation, then return in 2 days.",
+          3: "Partial retention. Re-read the lesson once, quiz again tomorrow.",
+          2: "Fluency but not storage. Read again slowly, wait 24 hours, retry.",
+          1: "Re-read the full lesson. Rest overnight. Quiz again before moving on.",
+          0: "Start fresh: read the lesson aloud, wait a day, quiz again.",
+        };
+
+        msg.textContent = msgs[correctCount] || msgs[0];
+      }
+    </script>
+  </body>
+</html>

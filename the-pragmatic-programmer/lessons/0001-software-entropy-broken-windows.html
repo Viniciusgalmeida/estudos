@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 1 — Software Entropy & Broken Windows</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #555;
+    --rule: #ddd;
+    --accent: #b5451b;
+    --accent-bg: #fdf4f1;
+    --insight-bg: #1a1a1a;
+    --insight-fg: #f5f0eb;
+    --good: #1a6b3c;
+    --good-bg: #f0faf4;
+    --bad: #8b1a1a;
+    --bad-bg: #fdf1f1;
+    --quiz-bg: #f9f7f4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Georgia", serif;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink);
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    background: #faf9f7;
+  }
+
+  header {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .breadcrumb {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: normal;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.95rem;
+  }
+
+  h2 {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 2.5rem 0 1rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1.5rem;
+  }
+
+  p { margin-bottom: 1rem; }
+
+  .insight {
+    background: var(--insight-bg);
+    color: var(--insight-fg);
+    padding: 1.5rem 2rem;
+    border-radius: 4px;
+    margin: 2rem 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .insight strong {
+    color: #f0c080;
+    font-style: normal;
+  }
+
+  .tip-box {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-bg);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+  }
+
+  .tip-box .tip-label {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .compare-header {
+    background: #f0ede8;
+    padding: 0.6rem 1rem;
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .compare-cell {
+    background: white;
+    padding: 0.75rem 1rem;
+  }
+
+  .compare-cell.bad { background: var(--bad-bg); color: var(--bad); }
+  .compare-cell.good { background: var(--good-bg); color: var(--good); }
+
+  /* Quiz */
+  .quiz-section {
+    background: var(--quiz-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 2rem;
+    margin-top: 2.5rem;
+  }
+
+  .quiz-section h2 {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .question {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .question:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .question p {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    font-size: 0.97rem;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: left;
+  }
+
+  .option:hover { background: #f3f0eb; border-color: #bbb; }
+  .option.correct { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+  .option.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+  .option.dimmed { opacity: 0.4; cursor: default; }
+
+  .option-letter {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    min-width: 1.4rem;
+    margin-top: 0.1rem;
+    letter-spacing: 0.04em;
+  }
+
+  .feedback {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 0.82rem;
+    margin-top: 0.75rem;
+    display: none;
+    line-height: 1.5;
+    padding: 0.6rem 0.9rem;
+    border-radius: 4px;
+  }
+
+  .feedback.correct-msg { background: var(--good-bg); color: var(--good); display: block; }
+  .feedback.wrong-msg { background: var(--bad-bg); color: var(--bad); display: block; }
+
+  .score-box {
+    display: none;
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--insight-bg);
+    color: var(--insight-fg);
+    border-radius: 4px;
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: "Helvetica Neue", sans-serif;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  cite {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-style: normal;
+    display: block;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="breadcrumb">The Pragmatic Programmer &rsaquo; Chapter 1 &rsaquo; Lesson 1</div>
+  <h1>Software Entropy &amp; Broken Windows</h1>
+  <p class="subtitle">Why good code rots — and the one habit that stops it</p>
+</header>
+
+<h2>The Research Behind the Metaphor</h2>
+
+<p>In the 1980s, criminologists James Wilson and George Kelling published the <em>Broken Windows Theory</em>: a single broken window in a building, left unrepaired, signals that no one cares. This invites more vandalism. The building deteriorates rapidly — not because of any single bad actor, but because of a social norm that disorder is acceptable here.</p>
+
+<p>Thomas and Hunt applied this directly to codebases. <strong>One piece of bad code — a messy function, an ignored TODO, a quick hack that "we'll fix later" — signals to every developer who reads it: this codebase accepts disorder.</strong> The entropy accelerates.</p>
+
+<div class="insight">
+  The cause of software rot is not <strong>time</strong> or <strong>complexity</strong>.<br>
+  It is <strong>neglect</strong> — the toleration of broken windows.
+</div>
+
+<h2>What Counts as a Broken Window</h2>
+
+<p>The book is specific: bad designs, wrong decisions, and poor code. But in practice, a broken window is anything that signals <em>we don't care here</em>:</p>
+
+<div class="compare">
+  <div class="compare-header bad">Broken window</div>
+  <div class="compare-header good">What it signals</div>
+
+  <div class="compare-cell bad">Function that does 5 different things, named <code>handleData()</code></div>
+  <div class="compare-cell good">Naming doesn't matter here. Add more unclear names.</div>
+
+  <div class="compare-cell bad">TODO comment from 2 years ago: <code>// fix this later</code></div>
+  <div class="compare-cell good">Technical debt is acceptable. Add more.</div>
+
+  <div class="compare-cell bad">Test that's been <code>skip</code>-ped for 6 months</div>
+  <div class="compare-cell good">Tests don't need to pass. The build being green is optional.</div>
+
+  <div class="compare-cell bad">Inconsistent error handling across the module</div>
+  <div class="compare-cell good">No convention exists here. Do whatever.</div>
+</div>
+
+<h2>Why This Is Hard to Apply</h2>
+
+<p>The broken windows trap is not "I'm lazy." It's "this is a small thing and I'm busy." That reasoning feels rational every single time. The book's counter-argument is that the <em>cumulative</em> effect of each small tolerance is catastrophic — and that once entropy takes hold, reversing it requires heroic effort.</p>
+
+<div class="tip-box">
+  <span class="tip-label">Tip 4 — The Pragmatic Programmer</span>
+  "Don't live with broken windows. Fix each one as soon as it is discovered. If there is insufficient time to fix it properly, then <em>board it up</em>. Perhaps you can comment out the offending code, or display a 'Not Implemented' message, or substitute dummy data instead. Take some action to prevent further damage and to show that you're on top of the situation."
+</div>
+
+<p>"Board it up" is the key nuance: you don't always have time to fix immediately, but you <em>must acknowledge the window is broken</em>. A comment <code>// FIXME: this logic is wrong, ticket #1234</code> is a boarded window. An unflagged inconsistency is a broken one.</p>
+
+<h2>The Senior Developer Connection</h2>
+
+<p>Junior and mid-level developers often see code quality as a personal aesthetic preference ("I like clean code"). The broken windows mental model reframes it as a <strong>team dynamics and system health problem</strong>: tolerating disorder changes what the team believes is acceptable, which changes what the codebase becomes over 12 months.</p>
+
+<p>Senior engineers hold the line on broken windows not because they're perfectionist, but because they understand entropy. They know that the one messy PR they approve without comment implicitly says "this level is fine here."</p>
+
+<h2>Retrieval Practice</h2>
+
+<div class="quiz-section">
+  <h2>Quiz — answer from memory, no scrolling up</h2>
+
+  <!-- Q1 -->
+  <div class="question" id="q1">
+    <p>1. The Broken Windows Theory originated in what field before being applied to software?</p>
+    <div class="options">
+      <button class="option" onclick="answer(this,'q1',false)"><span class="option-letter">A</span>Urban economics and city planning</button>
+      <button class="option" onclick="answer(this,'q1',true)"><span class="option-letter">B</span>Criminology and social psychology</button>
+      <button class="option" onclick="answer(this,'q1',false)"><span class="option-letter">C</span>Organizational behavior and management</button>
+      <button class="option" onclick="answer(this,'q1',false)"><span class="option-letter">D</span>Industrial engineering and quality control</button>
+    </div>
+    <div class="feedback" id="q1-feedback"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question" id="q2">
+    <p>2. According to the book, what is the primary cause of software rot (entropy)?</p>
+    <div class="options">
+      <button class="option" onclick="answer(this,'q2',false)"><span class="option-letter">A</span>Accumulation of features over a long time</button>
+      <button class="option" onclick="answer(this,'q2',false)"><span class="option-letter">B</span>Insufficient documentation in the codebase</button>
+      <button class="option" onclick="answer(this,'q2',true)"><span class="option-letter">C</span>Tolerance of disorder — neglect of broken windows</button>
+      <button class="option" onclick="answer(this,'q2',false)"><span class="option-letter">D</span>Rapid team growth and frequent onboarding</button>
+    </div>
+    <div class="feedback" id="q2-feedback"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question" id="q3">
+    <p>3. You have 20 minutes before a sprint demo. You spot a function with wrong, tangled logic — no time to fix it properly. What does the book say to do?</p>
+    <div class="options">
+      <button class="option" onclick="answer(this,'q3',false)"><span class="option-letter">A</span>Leave it for now — ship the demo, file a ticket after</button>
+      <button class="option" onclick="answer(this,'q3',false)"><span class="option-letter">B</span>Refactor it anyway — broken windows can't wait</button>
+      <button class="option" onclick="answer(this,'q3',true)"><span class="option-letter">C</span>Board it up — add a FIXME comment so disorder is acknowledged</button>
+      <button class="option" onclick="answer(this,'q3',false)"><span class="option-letter">D</span>Revert the function to its previous state and restart</button>
+    </div>
+    <div class="feedback" id="q3-feedback"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question" id="q4">
+    <p>4. A PR comes in: logic is correct, tests pass, but the variable names are cryptic and the function has no clear responsibility boundary. You're busy. What does the broken windows model say about approving it silently?</p>
+    <div class="options">
+      <button class="option" onclick="answer(this,'q4',false)"><span class="option-letter">A</span>Fine — naming is a preference, not a health issue</button>
+      <button class="option" onclick="answer(this,'q4',true)"><span class="option-letter">B</span>Approving it signals that this level of disorder is acceptable here</button>
+      <button class="option" onclick="answer(this,'q4',false)"><span class="option-letter">C</span>Fine if the PR author is senior and knows what they're doing</button>
+      <button class="option" onclick="answer(this,'q4',false)"><span class="option-letter">D</span>Fine if a refactor ticket is created at some point this quarter</button>
+    </div>
+    <div class="feedback" id="q4-feedback"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question" id="q5">
+    <p>5. Complete this: a broken window doesn't cause rot by itself. It causes rot because it changes what the team believes is __________.</p>
+    <div class="options">
+      <button class="option" onclick="answer(this,'q5',false)"><span class="option-letter">A</span>Technically feasible in the codebase's constraints</button>
+      <button class="option" onclick="answer(this,'q5',false)"><span class="option-letter">B</span>Worth discussing in architecture reviews and retros</button>
+      <button class="option" onclick="answer(this,'q5',true)"><span class="option-letter">C</span>Acceptable and normal in this codebase's standards</button>
+      <button class="option" onclick="answer(this,'q5',false)"><span class="option-letter">D</span>Possible to fix given current staffing and velocity</button>
+    </div>
+    <div class="feedback" id="q5-feedback"></div>
+  </div>
+
+  <div class="score-box" id="score-box"></div>
+</div>
+
+<footer>
+  <p><strong>Primary source:</strong> <em>The Pragmatic Programmer</em>, 20th Anniversary Ed. — Chapter 1, Topic 3: Software Entropy (pp. 5–7)</p>
+  <p style="margin-top:0.5rem;"><strong>Spaced repetition:</strong> Return to this quiz in 3–4 days without re-reading the lesson first. That effortful recall is what moves this from fluency to long-term storage.</p>
+  <p style="margin-top:0.75rem;">Questions? Ask your teacher directly — type <code>/teach</code> in the estudos folder with any follow-up.</p>
+</footer>
+
+<script>
+  const answers = {};
+  const correct = { q1: 'B', q2: 'C', q3: 'C', q4: 'B', q5: 'C' };
+  const explanations = {
+    q1: "Wilson and Kelling published the Broken Windows Theory in criminology (1982). Thomas and Hunt borrowed the metaphor for software.",
+    q2: "The book's argument: entropy isn't caused by complexity or time — it's caused by neglect. Tolerating one broken window normalizes more.",
+    q3: "'Board it up' — acknowledge the window is broken even when you can't fix it. An unflagged mess is worse than a flagged one.",
+    q4: "Silent approval is implicit permission. It broadcasts: 'this codebase accepts this level of disorder.' Future developers read that signal.",
+    q5: "The mechanism is social: broken windows shift the team's sense of what's normal here. That shift is what accelerates entropy."
+  };
+
+  function answer(btn, qid, isCorrect) {
+    if (answers[qid] !== undefined) return;
+    answers[qid] = isCorrect;
+
+    const allOptions = btn.closest('.question').querySelectorAll('.option');
+    allOptions.forEach(opt => {
+      opt.disabled = true;
+      if (opt !== btn) opt.classList.add('dimmed');
+    });
+
+    const letters = ['A','B','C','D'];
+    const btnLetter = btn.querySelector('.option-letter').textContent.trim();
+    const correctLetter = correct[qid];
+
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    if (!isCorrect) {
+      allOptions.forEach(opt => {
+        const l = opt.querySelector('.option-letter').textContent.trim();
+        if (l === correctLetter) {
+          opt.classList.remove('dimmed');
+          opt.classList.add('correct');
+        }
+      });
+    }
+
+    const fb = document.getElementById(qid + '-feedback');
+    fb.textContent = (isCorrect ? '✓ ' : '✗ ') + explanations[qid];
+    fb.className = 'feedback ' + (isCorrect ? 'correct-msg' : 'wrong-msg');
+
+    if (Object.keys(answers).length === 5) showScore();
+  }
+
+  function showScore() {
+    const score = Object.values(answers).filter(Boolean).length;
+    const box = document.getElementById('score-box');
+    const msgs = [
+      "0/5 — The concepts are slippery. Re-read the lesson slowly, then come back to the quiz tomorrow.",
+      "1/5 — The concepts are slippery. Re-read the lesson slowly, then come back to the quiz tomorrow.",
+      "2/5 — Some things landed. Return in 2 days and retake without re-reading first.",
+      "3/5 — Solid base. Return in 3 days for the spaced repetition check.",
+      "4/5 — Very strong. Return in 4–5 days without reviewing the lesson.",
+      "5/5 — Perfect. Schedule a return in 5–7 days — that's when storage strength is tested."
+    ];
+    box.innerHTML = `<strong>${score}/5</strong> — ${msgs[score]}`;
+    box.style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
