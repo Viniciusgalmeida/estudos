@@ -3,7 +3,7 @@ Template to use with the /teach skill
 ```markdown
 I just read Fundamentals.of.Software.Architecture.2020
 
-Chapter 1
+Chapter 2
 
 pages 9-20.
 
@@ -13,9 +13,9 @@ Based on what I read, teach me the most important concept from this section. Foc
 ```
 
 ```markdown
-I just read The pragmatic programmer
+I just read Fundamentals.of.Software.Architecture.2020
 
-Chapter 1
+Chapter 3 - Cohesion
 
 Based on what I read, teach me the most important concept from this section. Focus on what I should retain long-term, not just what I can recognize right now.
 
