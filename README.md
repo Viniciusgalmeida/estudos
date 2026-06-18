@@ -23,10 +23,6 @@ npm run dashboard
 
 Opens `dashboard.html`. On WSL, paste this path in your browser:
 
-```
-\\wsl.localhost\Ubuntu-22.04\home\vinidev\Development\estudos\dashboard.html
-```
-
 Regenerate after adding new lessons.
 
 ## Starting a New Subject
