@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 6 — The Main Sequence</title>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #555;
+      --accent: #2a6496;
+      --warn: #8b3a3a;
+      --bg: #fafaf8;
+      --card: #ffffff;
+      --border: #ddd;
+      --green: #2e7d32;
+      --red: #c62828;
+      --pain: #b71c1c;
+      --useless: #795548;
+      --ideal: #1b5e20;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.7;
+      padding: 3rem 1.5rem 5rem;
+    }
+    .page { max-width: 680px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); font-style: italic; margin-bottom: 2.5rem; font-size: 1rem; }
+    h2 {
+      font-size: 0.85rem;
+      margin: 2.5rem 0 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    p { margin-bottom: 1rem; }
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: #f0f5fa;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .callout strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .callout.pain { border-left-color: var(--pain); background: #fff3f3; }
+    .callout.pain strong { color: var(--pain); }
+    .callout.useless { border-left-color: var(--useless); background: #fdf5f0; }
+    .callout.useless strong { color: var(--useless); }
+    code {
+      font-family: 'Courier New', monospace;
+      background: #eee;
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1.25rem 1.5rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+      margin: 1.25rem 0;
+      font-family: 'Courier New', monospace;
+      line-height: 1.5;
+    }
+    .comment { color: #6a9955; }
+    .kw { color: #569cd6; }
+    .fn { color: #dcdcaa; }
+    .str { color: #ce9178; }
+    .num { color: #b5cea8; }
+
+    /* Main Sequence diagram */
+    .diagram-wrap {
+      margin: 2rem 0;
+      display: flex;
+      justify-content: center;
+    }
+    svg text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+
+    /* Formula rows */
+    .formula {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+    .formula .label {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    /* Quiz */
+    .quiz-section { margin-top: 3rem; }
+    .quiz-section h2 {
+      font-size: 1.1rem;
+      color: var(--ink);
+      text-transform: none;
+      font-family: Georgia, serif;
+      font-style: italic;
+      letter-spacing: 0;
+      margin-bottom: 1.25rem;
+    }
+    .question {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .q-text { font-size: 1rem; margin-bottom: 1rem; }
+    .options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .option {
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      background: white;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+      font-family: Georgia, serif;
+    }
+    .option:hover:not(:disabled) { background: #f0f5fa; border-color: var(--accent); }
+    .option.correct { background: #e8f5e9; border-color: var(--green); color: var(--green); }
+    .option.wrong { background: #ffebee; border-color: var(--red); color: var(--red); }
+    .feedback {
+      margin-top: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback.ok { background: #e8f5e9; color: var(--green); }
+    .feedback.bad { background: #ffebee; color: var(--red); }
+    .score-bar {
+      margin-top: 2rem;
+      text-align: center;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    #score-display { font-size: 1.5rem; font-weight: bold; color: var(--ink); display: block; margin-top: 0.5rem; }
+    .footer {
+      margin-top: 4rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .footer a { color: var(--accent); }
+    .nav-lessons { margin-top: 1rem; }
+    .nav-lessons a { margin-right: 1.25rem; }
+    .tag {
+      display: inline-block;
+      background: #e8eaf6;
+      color: #3949ab;
+      font-size: 0.72rem;
+      padding: 0.15em 0.5em;
+      border-radius: 3px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+      margin-left: 0.4em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #f0f5fa;
+      text-align: left;
+      padding: 0.6rem 0.9rem;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 0.55rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <h1>The Main Sequence</h1>
+  <p class="subtitle">Lesson 6 · Fundamentals of Software Architecture · Ch. 3 – Modularity</p>
+
+  <!-- ─── CORE CONCEPT ─── -->
+  <h2>The One Thing to Retain</h2>
+  <div class="callout">
+    <strong>Core principle</strong>
+    Stable modules (many things depend on them) must be abstract. Unstable modules (few things depend on them) can be concrete. Violate this balance and you end up in the <em>Zone of Pain</em> — locked into a concrete module you cannot change — or the <em>Zone of Uselessness</em> — beautiful abstractions nobody uses.
+  </div>
+
+  <p>
+    This is the insight that ties the whole modularity chapter together. Cohesion (from <a href="0005-cohesion.html">Lesson 5</a>) tells you <em>how well a module's parts belong together</em>. Coupling tells you <em>how modules relate to each other</em>. The Main Sequence tells you whether those relationships are <em>structured in a way that can survive change</em>.
+  </p>
+
+  <!-- ─── BUILDING BLOCKS ─── -->
+  <h2>Building Block 1 — Coupling Direction</h2>
+  <p>
+    Two types of coupling measure a module's place in the dependency graph:
+  </p>
+  <table>
+    <thead>
+      <tr><th>Term</th><th>Abbr</th><th>Meaning</th><th>Intuition</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Afferent coupling</td>
+        <td><code>Ca</code></td>
+        <td>How many modules depend <em>on</em> this one</td>
+        <td>Incoming arrows into this module</td>
+      </tr>
+      <tr>
+        <td>Efferent coupling</td>
+        <td><code>Ce</code></td>
+        <td>How many modules <em>this one</em> depends on</td>
+        <td>Outgoing arrows from this module</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    Memory hook: <strong>A</strong>fferent = <strong>A</strong>rriving (incoming). <strong>E</strong>fferent = <strong>E</strong>xiting (outgoing).
+  </p>
+
+  <h2>Building Block 2 — Instability (I)</h2>
+  <div class="formula">
+    <span class="label">Instability</span>
+    I = Ce / (Ce + Ca) &nbsp;&nbsp; range: 0–1
+  </div>
+  <p>
+    <strong>I = 0 (stable)</strong>: many things depend on this module, nothing it depends on. A change here breaks callers. You're locked in.<br/>
+    <strong>I = 1 (unstable)</strong>: this module depends on many things, but nothing depends on it. Free to change anytime. A leaf node.
+  </p>
+  <p>
+    Example: a <code>formatDate</code> utility used by 12 other modules has Ca=12, Ce=0 → I = 0/(0+12) = <strong>0 (maximally stable)</strong>. A new feature module that imports 5 libraries and is imported by nobody has Ce=5, Ca=0 → I = 5/5 = <strong>1 (maximally unstable)</strong>.
+  </p>
+
+  <h2>Building Block 3 — Abstractness (A)</h2>
+  <div class="formula">
+    <span class="label">Abstractness</span>
+    A = abstract elements / total elements &nbsp;&nbsp; range: 0–1
+  </div>
+  <p>
+    In typed languages: abstract classes and interfaces count as abstract elements. In JavaScript (no classes required): abstractness shows up as <strong>dependency injection</strong> — accepting a function as a parameter instead of calling a concrete implementation directly.
+  </p>
+  <p>
+    A concrete module has one specific implementation hardcoded. An abstract module accepts its behavior from the outside — callers can swap in different implementations without touching the module itself.
+  </p>
+
+  <!-- ─── MAIN SEQUENCE DIAGRAM ─── -->
+  <h2>The Main Sequence</h2>
+  <p>
+    Plot Abstractness (A) on the Y axis and Instability (I) on the X axis. Every module in your codebase lands somewhere on this grid.
+  </p>
+
+  <div class="diagram-wrap">
+    <svg width="400" height="360" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background -->
+      <rect width="400" height="360" fill="#fafaf8"/>
+
+      <!-- Zone of Pain (bottom-left) -->
+      <polygon points="60,280 60,160 180,280" fill="#ffcdd2" opacity="0.7"/>
+      <text x="85" y="260" font-size="11" fill="#b71c1c" font-weight="bold">Zone of Pain</text>
+      <text x="80" y="274" font-size="10" fill="#b71c1c">stable + concrete</text>
+
+      <!-- Zone of Uselessness (top-right) -->
+      <polygon points="180,60 300,60 300,180" fill="#d7ccc8" opacity="0.7"/>
+      <text x="205" y="90" font-size="11" fill="#4e342e" font-weight="bold">Zone of</text>
+      <text x="205" y="103" font-size="11" fill="#4e342e" font-weight="bold">Uselessness</text>
+      <text x="205" y="116" font-size="10" fill="#4e342e">abstract + unstable</text>
+
+      <!-- Main Sequence line -->
+      <line x1="60" y1="60" x2="300" y2="280" stroke="#2e7d32" stroke-width="2.5" stroke-dasharray="6,4"/>
+
+      <!-- Main sequence label -->
+      <text x="108" y="88" font-size="11" fill="#2e7d32" font-weight="bold" transform="rotate(42, 108, 88)">Main Sequence</text>
+
+      <!-- Axes -->
+      <line x1="60" y1="280" x2="310" y2="280" stroke="#333" stroke-width="1.5"/>
+      <line x1="60" y1="280" x2="60" y2="40" stroke="#333" stroke-width="1.5"/>
+
+      <!-- Axis arrows -->
+      <polygon points="310,276 318,280 310,284" fill="#333"/>
+      <polygon points="56,40 60,32 64,40" fill="#333"/>
+
+      <!-- X axis ticks -->
+      <line x1="60" y1="280" x2="60" y2="285" stroke="#333" stroke-width="1"/>
+      <text x="56" y="297" font-size="10" fill="#555" text-anchor="middle">0</text>
+      <line x1="180" y1="280" x2="180" y2="285" stroke="#333" stroke-width="1"/>
+      <text x="180" y="297" font-size="10" fill="#555" text-anchor="middle">0.5</text>
+      <line x1="300" y1="280" x2="300" y2="285" stroke="#333" stroke-width="1"/>
+      <text x="300" y="297" font-size="10" fill="#555" text-anchor="middle">1</text>
+
+      <!-- Y axis ticks -->
+      <line x1="60" y1="280" x2="55" y2="280" stroke="#333" stroke-width="1"/>
+      <text x="50" y="283" font-size="10" fill="#555" text-anchor="end">0</text>
+      <line x1="60" y1="170" x2="55" y2="170" stroke="#333" stroke-width="1"/>
+      <text x="50" y="173" font-size="10" fill="#555" text-anchor="end">0.5</text>
+      <line x1="60" y1="60" x2="55" y2="60" stroke="#333" stroke-width="1"/>
+      <text x="50" y="63" font-size="10" fill="#555" text-anchor="end">1</text>
+
+      <!-- Axis labels -->
+      <text x="190" y="318" font-size="12" fill="#333" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif">Instability (I) →</text>
+      <text x="16" y="170" font-size="12" fill="#333" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" transform="rotate(-90, 16, 170)">Abstractness (A) →</text>
+
+      <!-- Example dots -->
+      <!-- On main sequence: stable+abstract (I=0.1, A=0.9) -->
+      <circle cx="72" cy="68" r="5" fill="#2e7d32"/>
+      <text x="80" y="65" font-size="9" fill="#2e7d32">stable + abstract ✓</text>
+
+      <!-- On main sequence: unstable+concrete (I=0.9, A=0.1) -->
+      <circle cx="288" cy="272" r="5" fill="#2e7d32"/>
+      <text x="220" y="268" font-size="9" fill="#2e7d32">unstable + concrete ✓</text>
+
+      <!-- Zone of Pain dot (I=0.1, A=0.1) -->
+      <circle cx="72" cy="272" r="5" fill="#b71c1c"/>
+
+      <!-- Zone of Uselessness dot (I=0.9, A=0.9) -->
+      <circle cx="288" cy="68" r="5" fill="#4e342e"/>
+    </svg>
+  </div>
+
+  <p>
+    The diagonal line is the <strong>Main Sequence</strong> — the ideal trade-off. Modules should live near it. The further a module drifts from the line, the more problematic it is.
+  </p>
+
+  <!-- ─── ZONE OF PAIN ─── -->
+  <h2>Zone of Pain</h2>
+  <div class="callout pain">
+    <strong>Zone of Pain — stable + concrete</strong>
+    Many modules depend on it (I ≈ 0), but it has no abstraction (A ≈ 0). It is impossible to change without breaking callers, and it offers no way to swap behavior.
+  </div>
+
+  <p>Classic Zone of Pain in JavaScript: a utility module used everywhere, with a concrete implementation baked in:</p>
+
+<pre><span class="comment">// notifications.js — 12 other modules import this directly</span>
+<span class="kw">import</span> twilioClient <span class="kw">from</span> <span class="str">'twilio'</span>;
+<span class="kw">import</span> { getUserPhone } <span class="kw">from</span> <span class="str">'./users'</span>;
+
+<span class="kw">function</span> <span class="fn">sendNotification</span>(userId, message) {
+  <span class="kw">const</span> phone = getUserPhone(userId);
+  <span class="kw">return</span> twilioClient.messages.create({ to: phone, body: message });
+}
+
+<span class="kw">export</span> { sendNotification };</pre>
+
+  <p>
+    Ca = 12 (12 modules import it), Ce = 2 (imports twilio + users) → I = 2/14 ≈ <strong>0.14 (stable)</strong>. A = 0 (nothing abstract — one hardcoded Twilio implementation). Distance from sequence = |0 + 0.14 − 1| = <strong>0.86</strong>. Deep in the Zone of Pain.
+  </p>
+  <p>
+    The problem isn't that it sends SMS. The problem is that when the product team says "add email notifications" or "switch from Twilio to AWS SNS," you must touch this module <em>and</em> all 12 callers are at risk.
+  </p>
+
+  <!-- ─── ZONE OF USELESSNESS ─── -->
+  <h2>Zone of Uselessness</h2>
+  <div class="callout useless">
+    <strong>Zone of Uselessness — abstract + unstable</strong>
+    Lots of abstraction (A ≈ 1), but nothing depends on it (I ≈ 1). Beautiful design that nobody uses.
+  </div>
+
+<pre><span class="comment">// notificationStrategy.js — abstract, but nothing imports it</span>
+<span class="kw">function</span> <span class="fn">createNotificationSender</span>(sendFn) {
+  <span class="kw">return</span> <span class="kw">function</span>(userId, message, contact) {
+    <span class="kw">return</span> sendFn(contact, message);
+  };
+}
+
+<span class="comment">// Fully pluggable. Zero callers. The abstraction goes unused.</span>
+<span class="kw">export</span> { createNotificationSender };</pre>
+
+  <p>
+    Ca = 0 (nobody imports it), Ce = 0 → I = 0/0, treated as 1 (unstable). A ≈ 1 (fully abstract). Distance = |1 + 1 − 1| = <strong>1</strong>. Equally far from the Main Sequence, in the opposite direction. The design effort was wasted.
+  </p>
+
+  <!-- ─── ON THE MAIN SEQUENCE ─── -->
+  <h2>On the Main Sequence</h2>
+  <p>
+    The fix for the Zone of Pain example: inject the send behavior, so callers retain stable access to the <em>contract</em> while the implementation can change freely.
+  </p>
+
+<pre><span class="comment">// notifications.js — stable contract, abstract implementation</span>
+<span class="kw">function</span> <span class="fn">sendNotification</span>(userId, message, send) {
+  <span class="kw">const</span> contact = getContact(userId);
+  <span class="kw">return</span> send(contact, message);   <span class="comment">// caller provides the "how"</span>
+}
+
+<span class="kw">export</span> { sendNotification };
+
+<span class="comment">// ─── callers decide the channel ───────────────────────────────</span>
+
+<span class="comment">// In one context: SMS</span>
+sendNotification(id, msg, (contact, text) =>
+  twilioClient.messages.create({ to: contact.phone, body: text })
+);
+
+<span class="comment">// In another: email</span>
+sendNotification(id, msg, (contact, text) =>
+  emailClient.send({ to: contact.email, subject: <span class="str">'Alert'</span>, text })
+);
+
+<span class="comment">// In tests: no network calls</span>
+sendNotification(id, msg, (contact, text) => {
+  captured.push({ contact, text });
+});</pre>
+
+  <p>
+    Now the module is still stable (12 callers) and abstract (accepts the implementation). Moving from the Zone of Pain onto the Main Sequence didn't require a big refactor — just invert one dependency.
+  </p>
+
+  <h2>Distance from the Main Sequence</h2>
+  <div class="formula">
+    <span class="label">Distance</span>
+    D = |A + I − 1| &nbsp;&nbsp; range: 0–1 &nbsp;&nbsp; (0 = ideal, 1 = worst)
+  </div>
+  <p>
+    D is the key metric. Tools like <em>Structure101</em> or static analysis plugins can compute it across an entire codebase, producing a scatter plot. Modules far from D=0 are architectural risk zones.
+  </p>
+  <p>
+    Practically: when you see a module with many callers, ask yourself whether it's abstract enough to accommodate the changes it will be asked to support. That question is D in plain English.
+  </p>
+
+  <!-- ─── QUIZ ─── -->
+  <div class="quiz-section">
+    <h2>Retrieval Practice — close the lesson, answer from memory</h2>
+
+    <!-- Q1 -->
+    <div class="question" id="q1">
+      <p class="q-text">1. A module has <strong>Ca = 10</strong> and <strong>Ce = 2</strong>. What is its Instability (I), and what does that tell you?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q1', this, false)" data-feedback="Remember: I = Ce / (Ce + Ca). Afferent (Ca) is incoming, Efferent (Ce) is outgoing. I = 2 / (2+10) = 0.17 — this module is stable, not unstable. Many things depend on it.">I = 0.83 — this module is unstable, free to change</button>
+        <button class="option" onclick="answer('q1', this, true)" data-feedback="Correct. I = Ce / (Ce + Ca) = 2 / (2+10) = 0.17. Low instability means many things depend on this module. Changing it risks breaking 10 callers. It should be abstract to absorb that pressure.">I = 0.17 — this module is stable, many things depend on it</button>
+        <button class="option" onclick="answer('q1', this, false)" data-feedback="I = 0.50 would mean Ce and Ca are equal. Here Ca=10 vastly outweighs Ce=2, so the module is stable (low I), not neutral.">I = 0.50 — this module is perfectly neutral</button>
+        <button class="option" onclick="answer('q1', this, false)" data-feedback="Instability is always between 0 and 1. The formula is Ce/(Ce+Ca), so with Ce=2 and Ca=10, I = 2/12 ≈ 0.17. The 5.0 result is not possible.">I = 5.0 — Ca divided by Ce</button>
+      </div>
+      <div class="feedback" id="q1-fb"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question" id="q2">
+      <p class="q-text">2. A module is <strong>stable (I ≈ 0)</strong> and <strong>concrete (A ≈ 0)</strong>. Where does it fall, and why is that dangerous?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q2', this, false)" data-feedback="The Zone of Uselessness is high abstractness + high instability (top-right of the graph). This module has neither — it's stable and concrete, which is the opposite quadrant.">Zone of Uselessness — abstract but nobody uses it</button>
+        <button class="option" onclick="answer('q2', this, false)" data-feedback="On the Main Sequence a stable module (low I) would have high abstractness (A ≈ 1). This module has A ≈ 0, so it's far from the sequence.">Main Sequence — the ideal balance of stability and abstraction</button>
+        <button class="option" onclick="answer('q2', this, true)" data-feedback="Correct. Zone of Pain: stable (many callers) + concrete (no abstraction). The module cannot change without breaking callers, and it offers no interface to swap. The hardest kind of module to evolve.">Zone of Pain — many callers, but the implementation is locked in</button>
+        <button class="option" onclick="answer('q2', this, false)" data-feedback="There is no 'Zone of Safety.' The safe zone is the Main Sequence (D near 0), which requires stable modules to also be abstract.">Zone of Safety — stable modules are always desirable</button>
+      </div>
+      <div class="feedback" id="q2-fb"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question" id="q3">
+      <p class="q-text">3. In JavaScript (without classes), which technique most directly increases a module's <strong>Abstractness</strong>?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q3', this, false)" data-feedback="Splitting a module reduces its scope but doesn't make it abstract. Abstraction is about accepting behavior from the outside, not about module size.">Splitting one large module into two smaller ones</button>
+        <button class="option" onclick="answer('q3', this, false)" data-feedback="Adding more imports (Ce) increases Efferent coupling, which raises Instability — not Abstractness. Abstractness is about what the module accepts, not what it imports.">Adding more imports from other modules</button>
+        <button class="option" onclick="answer('q3', this, true)" data-feedback="Correct. When a module accepts a function as a parameter instead of calling a concrete implementation directly, callers can provide any behavior. This is the JavaScript equivalent of programming to an interface — it's what makes a module abstract.">Accepting a function as a parameter instead of calling a concrete implementation</button>
+        <button class="option" onclick="answer('q3', this, false)" data-feedback="Removing exports reduces Afferent coupling (fewer things can depend on this). That changes Instability, not Abstractness. Abstractness is about how the module's own behavior is structured internally.">Removing exports to reduce the number of callers</button>
+      </div>
+      <div class="feedback" id="q3-fb"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question" id="q4">
+      <p class="q-text">4. What is the Distance from the Main Sequence formula, and what does D = 0 mean?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q4', this, false)" data-feedback="This reverses the formula. The correct formula is D = |A + I − 1|. D = 1 (not 0) means worst case — deepest in Zone of Pain or Zone of Uselessness.">D = |A − I|, and D = 0 means maximum distance from ideal</button>
+        <button class="option" onclick="answer('q4', this, false)" data-feedback="Multiplying A and I doesn't capture the Main Sequence relationship. The sequence is a diagonal where A + I = 1. Distance from that line is |A + I − 1|.">D = A × I, and D = 0 means either A or I is zero</button>
+        <button class="option" onclick="answer('q4', this, true)" data-feedback="Correct. D = |A + I − 1|, range 0–1. D = 0 means the module sits exactly on the Main Sequence — its abstractness matches its stability perfectly. D = 1 means it's in a Zone (Pain or Uselessness).">D = |A + I − 1|, and D = 0 means the module is on the Main Sequence (ideal)</button>
+        <button class="option" onclick="answer('q4', this, false)" data-feedback="D = Ca / Ce would be a ratio of coupling counts, not a distance metric. The Distance formula uses Abstractness (A) and Instability (I), which already encode coupling direction.">D = Ca / Ce, and D = 0 means no incoming dependencies</button>
+      </div>
+      <div class="feedback" id="q4-fb"></div>
+    </div>
+
+    <div class="score-bar">
+      Quiz complete when all 4 answered · Score: <span id="score-display">—</span>
+    </div>
+  </div>
+
+  <!-- ─── FOOTER ─── -->
+  <div class="footer">
+    <p>Something unclear? Ask your teacher — describe what's confusing and the agent will explain it differently.</p>
+    <div class="nav-lessons">
+      <a href="0005-cohesion.html">← Lesson 5: Cohesion</a>
+      <a href="../reference/">Reference docs →</a>
+    </div>
+  </div>
+
+</div>
+<script>
+  let correct = 0;
+  let answered = 0;
+  const total = 4;
+
+  function answer(qid, btn, isCorrect) {
+    const q = document.getElementById(qid);
+    q.querySelectorAll('.option').forEach(b => {
+      b.disabled = true;
+      b.style.cursor = 'default';
+    });
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    const fb = document.getElementById(qid + '-fb');
+    fb.textContent = btn.dataset.feedback;
+    fb.classList.add('show', isCorrect ? 'ok' : 'bad');
+
+    answered++;
+    if (isCorrect) correct++;
+
+    if (answered === total) {
+      document.getElementById('score-display').textContent = `${correct} / ${total}`;
+    }
+  }
+</script>
+</body>
+</html>
