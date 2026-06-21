@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 7 — Connascence</title>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #555;
+      --accent: #2a6496;
+      --bg: #fafaf8;
+      --card: #ffffff;
+      --border: #ddd;
+      --green: #2e7d32;
+      --red: #c62828;
+      --warn: #8b3a3a;
+      --weak-color: #1b5e20;
+      --strong-color: #b71c1c;
+      --dynamic-color: #4a148c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.7;
+      padding: 3rem 1.5rem 5rem;
+    }
+    .page { max-width: 680px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); font-style: italic; margin-bottom: 2.5rem; font-size: 1rem; }
+    h2 {
+      font-size: 0.85rem;
+      margin: 2.5rem 0 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    p { margin-bottom: 1rem; }
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: #f0f5fa;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .callout strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .callout.warn { border-left-color: var(--warn); background: #fff3f3; }
+    .callout.warn strong { color: var(--warn); }
+    code {
+      font-family: 'Courier New', monospace;
+      background: #eee;
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1.25rem 1.5rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+      margin: 1.25rem 0;
+      font-family: 'Courier New', monospace;
+      line-height: 1.5;
+    }
+    .comment { color: #6a9955; }
+    .kw { color: #569cd6; }
+    .fn { color: #dcdcaa; }
+    .str { color: #ce9178; }
+    .num { color: #b5cea8; }
+    .label-bad { color: #f44747; font-weight: bold; }
+    .label-good { color: #4ec9b0; font-weight: bold; }
+
+    /* Strength ladder */
+    .ladder {
+      margin: 1.5rem 0;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .ladder-header {
+      display: grid;
+      grid-template-columns: 2fr 3fr 1fr;
+      padding: 0.5rem 1rem;
+      font-size: 0.72rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      background: #f0f0ee;
+      border-bottom: 1px solid var(--border);
+    }
+    .ladder-row {
+      display: grid;
+      grid-template-columns: 2fr 3fr 1fr;
+      padding: 0.55rem 1rem;
+      border-bottom: 1px solid #f0f0ee;
+      font-size: 0.9rem;
+      align-items: center;
+      transition: background 0.1s;
+    }
+    .ladder-row:last-child { border-bottom: none; }
+    .ladder-row:hover { background: #f8f8f6; }
+    .ladder-name { font-weight: bold; }
+    .ladder-desc { color: var(--muted); font-size: 0.85rem; }
+    .strength-pill {
+      font-size: 0.7rem;
+      padding: 0.2em 0.55em;
+      border-radius: 20px;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 0.03em;
+    }
+    .s1 { background: #e8f5e9; color: #1b5e20; }
+    .s2 { background: #e3f2fd; color: #0d47a1; }
+    .s3 { background: #fff8e1; color: #e65100; }
+    .s4 { background: #fce4ec; color: #880e4f; }
+    .s5 { background: #f3e5f5; color: #4a148c; }
+    .s6 { background: #ffebee; color: #b71c1c; }
+    .dynamic-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 0.1em 0.45em;
+      border-radius: 3px;
+      background: #ede7f6;
+      color: var(--dynamic-color);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+      margin-left: 0.4em;
+      font-weight: bold;
+    }
+    .static-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 0.1em 0.45em;
+      border-radius: 3px;
+      background: #e8f5e9;
+      color: #1b5e20;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+      margin-left: 0.4em;
+      font-weight: bold;
+    }
+    .divider-row {
+      background: #f5f5f5;
+      padding: 0.3rem 1rem;
+      font-size: 0.72rem;
+      font-weight: bold;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .arrow-section {
+      display: flex;
+      align-items: center;
+      margin: 0.5rem 0 1.5rem;
+      gap: 0.5rem;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.8rem;
+    }
+    .arrow-label-weak { color: var(--weak-color); font-weight: bold; }
+    .arrow-label-strong { color: var(--strong-color); font-weight: bold; }
+    .arrow-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(to right, var(--weak-color), var(--strong-color));
+      border-radius: 2px;
+    }
+
+    /* Quiz */
+    .quiz-section { margin-top: 3rem; }
+    .quiz-section > h2 {
+      font-size: 1.1rem;
+      color: var(--ink);
+      text-transform: none;
+      font-family: Georgia, serif;
+      font-style: italic;
+      letter-spacing: 0;
+      margin-bottom: 1.25rem;
+    }
+    .question {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .q-text { font-size: 1rem; margin-bottom: 1rem; }
+    .q-code {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      margin-bottom: 1rem;
+      font-family: 'Courier New', monospace;
+      line-height: 1.5;
+    }
+    .options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .option {
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      background: white;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+      font-family: Georgia, serif;
+    }
+    .option:hover:not(:disabled) { background: #f0f5fa; border-color: var(--accent); }
+    .option.correct { background: #e8f5e9; border-color: var(--green); color: var(--green); }
+    .option.wrong { background: #ffebee; border-color: var(--red); color: var(--red); }
+    .feedback {
+      margin-top: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback.ok { background: #e8f5e9; color: var(--green); }
+    .feedback.bad { background: #ffebee; color: var(--red); }
+    .score-bar {
+      margin-top: 2rem;
+      text-align: center;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    #score-display { font-size: 1.5rem; font-weight: bold; color: var(--ink); display: block; margin-top: 0.5rem; }
+    .footer {
+      margin-top: 4rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .footer a { color: var(--accent); }
+    .nav-lessons { margin-top: 1rem; }
+    .nav-lessons a { margin-right: 1.25rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #f0f5fa;
+      text-align: left;
+      padding: 0.6rem 0.9rem;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid #f0f0ee;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Connascence</h1>
+  <p class="subtitle">Lesson 7 · Fundamentals of Software Architecture · Chapter 3</p>
+
+  <h2>The Core Idea</h2>
+
+  <p>Coupling metrics (Ca, Ce, I) from the last lesson count how many dependencies exist. Connascence names <em>what kind</em> of dependency it is — and that distinction drives refactoring decisions.</p>
+
+  <div class="callout">
+    <strong>Definition</strong>
+    Two components are <em>connascent</em> if a change in one requires a corresponding change in the other to keep the system correct. The stronger the connascence, the harder that change becomes.
+  </div>
+
+  <p>Connascence was introduced by Meilir Page-Jones and later refined in the software architecture community. Its value is vocabulary: instead of "these two things are coupled," you can say "these have Connascence of Position" — and immediately know the severity and the fix.</p>
+
+  <h2>The Strength Ladder</h2>
+
+  <p>Connascence types are ordered by <strong>strength</strong> — how difficult it is to discover and refactor the coupling. Weaker connascence is always preferable, especially across module boundaries.</p>
+
+  <div class="arrow-section">
+    <span class="arrow-label-weak">Weakest (safest)</span>
+    <div class="arrow-line"></div>
+    <span class="arrow-label-strong">Strongest (most harmful)</span>
+  </div>
+
+  <div class="ladder">
+    <div class="ladder-header">
+      <span>Name</span>
+      <span>Two things must agree on…</span>
+      <span>Strength</span>
+    </div>
+
+    <div class="divider-row">Static — visible in source code</div>
+
+    <div class="ladder-row">
+      <div class="ladder-name">CoN <span class="static-badge">static</span></div>
+      <div class="ladder-desc">Connascence of Name — a shared identifier (function name, variable name)</div>
+      <div><span class="strength-pill s1">1 — weakest</span></div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-name">CoT <span class="static-badge">static</span></div>
+      <div class="ladder-desc">Connascence of Type — a shared type (string, number, shape of object)</div>
+      <div><span class="strength-pill s2">2</span></div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-name">CoM <span class="static-badge">static</span></div>
+      <div class="ladder-desc">Connascence of Meaning — a shared convention about what a value means (magic numbers/strings)</div>
+      <div><span class="strength-pill s3">3</span></div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-name">CoP <span class="static-badge">static</span></div>
+      <div class="ladder-desc">Connascence of Position — the order of arguments or values</div>
+      <div><span class="strength-pill s4">4</span></div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-name">CoA <span class="static-badge">static</span></div>
+      <div class="ladder-desc">Connascence of Algorithm — a shared algorithm (e.g. hashing, encoding, sorting logic)</div>
+      <div><span class="strength-pill s4">5</span></div>
+    </div>
+
+    <div class="divider-row">Dynamic — only visible at runtime</div>
+
+    <div class="ladder-row">
+      <div class="ladder-name">CoE <span class="dynamic-badge">dynamic</span></div>
+      <div class="ladder-desc">Connascence of Execution — the order in which components must run</div>
+      <div><span class="strength-pill s5">6</span></div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-name">CoTm <span class="dynamic-badge">dynamic</span></div>
+      <div class="ladder-desc">Connascence of Timing — exact timing of execution (race conditions)</div>
+      <div><span class="strength-pill s5">7</span></div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-name">CoV <span class="dynamic-badge">dynamic</span></div>
+      <div class="ladder-desc">Connascence of Values — related values that must change together at runtime</div>
+      <div><span class="strength-pill s5">8</span></div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-name">CoI <span class="dynamic-badge">dynamic</span></div>
+      <div class="ladder-desc">Connascence of Identity — two components must reference the exact same object instance</div>
+      <div><span class="strength-pill s6">9 — strongest</span></div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Key rule</strong>
+    Dynamic connascence is always harder to reason about than static — bugs are invisible until runtime. When you spot dynamic connascence, ask whether it can be converted to a static form.
+  </div>
+
+  <h2>Three Refactoring Moves in Code</h2>
+
+  <p>The practical skill is recognizing a connascence type and knowing the move to weaken it.</p>
+
+  <p><strong>Move 1: CoM → CoN</strong> — Replace magic values with named constants.</p>
+
+  <pre><span class="comment">// CoM — two files must silently agree that 1 means "active"</span>
+<span class="kw">function</span> <span class="fn">activateUser</span>(user) {
+  <span class="kw">return</span> { ...user, status: <span class="num">1</span> };         <span class="comment">// what is 1?</span>
+}
+
+<span class="kw">function</span> <span class="fn">isActive</span>(user) {
+  <span class="kw">return</span> user.status === <span class="num">1</span>;               <span class="comment">// same magic number, different file</span>
+}
+
+<span class="comment">// ─────────────────────────────────────────────</span>
+<span class="comment">// CoN — both files now depend only on the name</span>
+<span class="kw">const</span> USER_STATUS = { ACTIVE: <span class="str">'active'</span>, INACTIVE: <span class="str">'inactive'</span> };
+
+<span class="kw">function</span> <span class="fn">activateUser</span>(user) {
+  <span class="kw">return</span> { ...user, status: USER_STATUS.ACTIVE };
+}
+
+<span class="kw">function</span> <span class="fn">isActive</span>(user) {
+  <span class="kw">return</span> user.status === USER_STATUS.ACTIVE;
+}</pre>
+
+  <p>Renaming <code>ACTIVE</code> is a mechanical find-and-replace. Hunting every <code>1</code> in the codebase is not.</p>
+
+  <p><strong>Move 2: CoP → CoN</strong> — Replace positional arguments with a named-object parameter.</p>
+
+  <pre><span class="comment">// CoP — callers must know: name first, email second, role third</span>
+<span class="kw">function</span> <span class="fn">createUser</span>(name, email, role) {
+  <span class="kw">return</span> { name, email, role };
+}
+
+createUser(<span class="str">'Alice'</span>, <span class="str">'alice@co.com'</span>, <span class="str">'admin'</span>);
+createUser(<span class="str">'alice@co.com'</span>, <span class="str">'Alice'</span>, <span class="str">'admin'</span>); <span class="comment">// silent bug — no error thrown</span>
+
+<span class="comment">// ─────────────────────────────────────────────</span>
+<span class="comment">// CoN — order no longer matters</span>
+<span class="kw">function</span> <span class="fn">createUser</span>({ name, email, role }) {
+  <span class="kw">return</span> { name, email, role };
+}
+
+createUser({ name: <span class="str">'Alice'</span>, email: <span class="str">'alice@co.com'</span>, role: <span class="str">'admin'</span> });</pre>
+
+  <p><strong>Move 3: CoA — the hardest to fix.</strong> Two modules implement the same algorithm independently. If the algorithm changes, both must be updated in sync.</p>
+
+  <pre><span class="comment">// CoA — both functions re-implement the same encoding</span>
+<span class="kw">function</span> <span class="fn">encodeToken</span>(userId) {
+  <span class="kw">return</span> btoa(<span class="str">`user:`</span> + userId);           <span class="comment">// base64 of "user:123"</span>
+}
+
+<span class="kw">function</span> <span class="fn">decodeToken</span>(token) {
+  <span class="kw">const</span> raw = atob(token);
+  <span class="kw">return</span> raw.split(<span class="str">':'</span>)[<span class="num">1</span>];               <span class="comment">// must know the "user:" prefix</span>
+}
+
+<span class="comment">// ─────────────────────────────────────────────</span>
+<span class="comment">// CoN — algorithm lives once; consumers depend only on name</span>
+<span class="kw">function</span> <span class="fn">encodeToken</span>(userId) {
+  <span class="kw">return</span> btoa(<span class="str">`user:`</span> + userId);
+}
+
+<span class="kw">function</span> <span class="fn">decodeToken</span>(token) {
+  <span class="kw">return</span> <span class="fn">encodeToken</span>;                      <span class="comment">// wrong — see below</span>
+}
+
+<span class="comment">// Actually: extract the shared rule into one function both call</span>
+<span class="kw">function</span> <span class="fn">tokenPrefix</span>() { <span class="kw">return</span> <span class="str">'user:'</span>; }
+
+<span class="kw">function</span> <span class="fn">encodeToken</span>(userId) {
+  <span class="kw">return</span> btoa(<span class="fn">tokenPrefix</span>() + userId);
+}
+
+<span class="kw">function</span> <span class="fn">decodeToken</span>(token) {
+  <span class="kw">const</span> raw = atob(token);
+  <span class="kw">return</span> raw.replace(<span class="fn">tokenPrefix</span>(), <span class="str">''</span>);  <span class="comment">// single source of truth</span>
+}</pre>
+
+  <h2>Locality Changes Everything</h2>
+
+  <p>Connascence within a single module is acceptable at higher strengths. Connascence across module or service boundaries must be minimized. The farther apart two components are, the weaker their connascence should be.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Distance</th>
+        <th>Acceptable strength</th>
+        <th>Reasoning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Same function</td>
+        <td>Any</td>
+        <td>Change is local, one place to update</td>
+      </tr>
+      <tr>
+        <td>Same module/file</td>
+        <td>Up to CoA</td>
+        <td>Grep finds it; refactor is bounded</td>
+      </tr>
+      <tr>
+        <td>Across modules</td>
+        <td>CoN, CoT only</td>
+        <td>Renames tool-supported; meaning/position drift silently</td>
+      </tr>
+      <tr>
+        <td>Across services</td>
+        <td>CoN only</td>
+        <td>Runtime-only coupling (CoE, CoV, CoI) becomes distributed system bug</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>How This Extends What You Already Know</h2>
+
+  <p>Ca/Ce coupling metrics from last lesson tell you <em>how many</em> things depend on a module. Connascence tells you <em>how deeply</em> they depend on it. A module can have low Ce but strong CoA — only one outgoing dependency, but it requires synchronizing a shared algorithm. That's still dangerous.</p>
+
+  <p>Use both lenses together: Ca/Ce for quantity, connascence for quality.</p>
+
+  <!-- QUIZ -->
+  <div class="quiz-section">
+    <h2>Check your understanding</h2>
+
+    <!-- Q1 -->
+    <div class="question" id="q1">
+      <p class="q-text">1. A payment module and a reporting module both contain this check: <code>if (type === 2)</code> — both silently agree that 2 means "refund". What type of connascence is this?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q1',this,false)">Connascence of Name (CoN)</button>
+        <button class="option" onclick="answer('q1',this,false)">Connascence of Position (CoP)</button>
+        <button class="option" onclick="answer('q1',this,true)">Connascence of Meaning (CoM)</button>
+        <button class="option" onclick="answer('q1',this,false)">Connascence of Algorithm (CoA)</button>
+      </div>
+      <div class="feedback" id="q1-fb"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question" id="q2">
+      <p class="q-text">2. You refactor <code>send(to, subject, body)</code> into <code>send({ to, subject, body })</code> across callers. What connascence type did you eliminate?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q2',this,false)">Connascence of Meaning (CoM)</button>
+        <button class="option" onclick="answer('q2',this,true)">Connascence of Position (CoP)</button>
+        <button class="option" onclick="answer('q2',this,false)">Connascence of Algorithm (CoA)</button>
+        <button class="option" onclick="answer('q2',this,false)">Connascence of Execution (CoE)</button>
+      </div>
+      <div class="feedback" id="q2-fb"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question" id="q3">
+      <p class="q-text">3. A service A must call <code>initCache()</code> before calling <code>getUser()</code>, or the app crashes at runtime. There is nothing in source code that enforces this order. What connascence type is this?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q3',this,false)">Connascence of Position (CoP)</button>
+        <button class="option" onclick="answer('q3',this,false)">Connascence of Algorithm (CoA)</button>
+        <button class="option" onclick="answer('q3',this,true)">Connascence of Execution (CoE)</button>
+        <button class="option" onclick="answer('q3',this,false)">Connascence of Identity (CoI)</button>
+      </div>
+      <div class="feedback" id="q3-fb"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question" id="q4">
+      <p class="q-text">4. Dynamic connascence is generally considered worse than static connascence. Why?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q4',this,false)">Dynamic coupling involves more modules than static coupling</button>
+        <button class="option" onclick="answer('q4',this,true)">Dynamic coupling is only detectable at runtime, not by reading the code</button>
+        <button class="option" onclick="answer('q4',this,false)">Static coupling always has a higher degree than dynamic coupling</button>
+        <button class="option" onclick="answer('q4',this,false)">Dynamic connascence is always stronger on the strength ladder</button>
+      </div>
+      <div class="feedback" id="q4-fb"></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question" id="q5">
+      <p class="q-text">5. You are reviewing an API that spans two separate services. Which connascence strength is safest to allow across that boundary?</p>
+      <div class="options">
+        <button class="option" onclick="answer('q5',this,true)">Connascence of Name (CoN) only</button>
+        <button class="option" onclick="answer('q5',this,false)">Connascence of Meaning (CoM) is acceptable since services are loosely coupled</button>
+        <button class="option" onclick="answer('q5',this,false)">Connascence of Algorithm (CoA) is fine if both services are owned by the same team</button>
+        <button class="option" onclick="answer('q5',this,false)">Connascence of Position (CoP) is acceptable for query parameters</button>
+      </div>
+      <div class="feedback" id="q5-fb"></div>
+    </div>
+
+    <div class="score-bar">
+      Score: <span id="score-display">–</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Source: <a href="https://www.oreilly.com/library/view/fundamentals-of-software/9781492043447/" target="_blank">Fundamentals of Software Architecture</a> — Neal Ford & Mark Richards, Ch. 3 · Original framework: Meilir Page-Jones, <em>What Every Programmer Should Know About Object-Oriented Design</em> (1996)</p>
+    <p>Ask your teacher anything unclear about this lesson.</p>
+    <div class="nav-lessons">
+      <a href="0005-cohesion.html">← Lesson 5: Cohesion</a>
+      <a href="0006-main-sequence.html">← Lesson 6: Main Sequence</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const FEEDBACK = {
+    q1: {
+      ok: "Correct. Two places silently agree on what the number 2 means — that's CoM. Fix: replace 2 with a named constant like TRANSACTION_TYPE.REFUND.",
+      bad: "Not quite. The magic number 2 requires both files to share an undocumented meaning. That's Connascence of Meaning (CoM)."
+    },
+    q2: {
+      ok: "Correct. Positional arguments force callers to remember the order. Switching to a named object removes that positional dependency (CoP → CoN).",
+      bad: "Not quite. The issue was argument order — callers had to know 'to' comes first, 'subject' second, 'body' third. That's Connascence of Position (CoP)."
+    },
+    q3: {
+      ok: "Correct. The order of execution is a runtime constraint invisible in source code — Connascence of Execution (CoE). Consider initializing the cache inside getUser(), or enforcing initialization at startup.",
+      bad: "Not quite. There's nothing wrong in source code; the failure only appears at runtime when order is violated. That's Connascence of Execution (CoE)."
+    },
+    q4: {
+      ok: "Correct. Static connascence (CoN, CoM, CoP, CoA) can be caught by reading code, grep, or linters. Dynamic connascence only surfaces when the program runs — often in production.",
+      bad: "Not quite. The key distinction is observability: static connascence is visible in code; dynamic connascence hides until runtime."
+    },
+    q5: {
+      ok: "Correct. Across service boundaries, only CoN (a shared name/identifier, like an endpoint path or event type) is safe. Services evolve independently — shared meaning, position, or algorithms drift without a compile-time contract.",
+      bad: "Not quite. Across service boundaries, only Connascence of Name is safe. Shared meaning (CoM), argument order (CoP), or algorithms (CoA) across services break silently because there's no compile-time contract."
+    }
+  };
+
+  let scores = {};
+
+  function answer(qid, btn, isCorrect) {
+    const q = document.getElementById(qid);
+    if (q.dataset.answered) return;
+    q.dataset.answered = 'true';
+
+    const buttons = q.querySelectorAll('.option');
+    buttons.forEach(b => { b.disabled = true; });
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    const fb = document.getElementById(qid + '-fb');
+    fb.textContent = isCorrect ? FEEDBACK[qid].ok : FEEDBACK[qid].bad;
+    fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'bad');
+
+    scores[qid] = isCorrect ? 1 : 0;
+    updateScore();
+  }
+
+  function updateScore() {
+    const answered = Object.keys(scores).length;
+    const correct = Object.values(scores).reduce((a,b) => a+b, 0);
+    document.getElementById('score-display').textContent = correct + ' / ' + answered;
+  }
+</script>
+</body>
+</html>
