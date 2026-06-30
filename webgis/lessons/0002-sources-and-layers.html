@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 2 — Sources &amp; Layers</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #fafaf8;
+      padding: 2rem 1rem 6rem;
+    }
+
+    .page { max-width: 680px; margin: 0 auto; }
+
+    header {
+      border-bottom: 1px solid #d0cfc8;
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .lesson-meta {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: normal;
+      line-height: 1.25;
+      color: #111;
+    }
+
+    h2 {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #888;
+      margin: 2.5rem 0 0.75rem;
+    }
+
+    p { margin-bottom: 1.2rem; }
+
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      background: #ede9e0;
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+    }
+
+    .key-idea {
+      background: #f0ede6;
+      border-left: 3px solid #8b7355;
+      padding: 1rem 1.25rem;
+      margin: 2rem 0;
+      font-style: italic;
+    }
+
+    .key-idea strong {
+      font-style: normal;
+      display: block;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8b7355;
+      margin-bottom: 0.4rem;
+    }
+
+    /* Layer stack diagram */
+    .layer-stack {
+      margin: 2rem 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .stack-label {
+      font-size: 0.75rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+
+    .stack-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.65rem 1rem;
+      border: 1px solid #ccc;
+      margin-bottom: -1px;
+      background: #fafaf8;
+      position: relative;
+    }
+
+    .stack-item:first-of-type { border-radius: 4px 4px 0 0; }
+    .stack-item:last-of-type  { border-radius: 0 0 4px 4px; }
+
+    .stack-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      flex-shrink: 0;
+      width: 68px;
+      text-align: center;
+    }
+
+    .badge-layer  { background: #d4edda; color: #155724; }
+    .badge-source { background: #cce5ff; color: #004085; }
+
+    .stack-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .stack-detail {
+      font-size: 0.78rem;
+      color: #666;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .stack-arrow {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #aaa;
+      padding: 0.15rem 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+    }
+
+    .stack-divider {
+      border: none;
+      border-top: 2px dashed #bbb;
+      margin: 0.75rem 0;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      padding: 1.25rem 1.5rem;
+      border-radius: 4px;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      line-height: 1.7;
+      tab-size: 2;
+    }
+
+    .code-block .c  { color: #6c7086; }   /* comment */
+    .code-block .k  { color: #cba6f7; }   /* keyword */
+    .code-block .s  { color: #a6e3a1; }   /* string */
+    .code-block .p  { color: #89dceb; }   /* property */
+    .code-block .n  { color: #f38ba8; }   /* number */
+    .code-block .fn { color: #89b4fa; }   /* function */
+
+    .code-annotation {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: -0.75rem;
+      margin-bottom: 1.5rem;
+      padding-left: 0.25rem;
+    }
+
+    /* Source types table */
+    .types-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.82rem;
+      margin: 1.5rem 0;
+    }
+
+    .types-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      background: #ede9e0;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #555;
+      border: 1px solid #d0cfc8;
+    }
+
+    .types-table td {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid #d0cfc8;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+
+    .types-table tr:nth-child(even) td { background: #f5f3ee; }
+
+    .types-table .job-tag {
+      font-size: 0.65rem;
+      background: #f38ba8;
+      color: #1a0010;
+      padding: 0.1rem 0.35rem;
+      border-radius: 2px;
+      font-weight: 700;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* Quiz */
+    .quiz {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin: 2.5rem 0;
+    }
+
+    .quiz h2 { margin-top: 0; color: #333; }
+
+    .quiz-question { margin-bottom: 1.75rem; }
+
+    .quiz-question:last-of-type { margin-bottom: 0; }
+
+    .quiz-question p {
+      font-weight: bold;
+      margin-bottom: 0.6rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.95rem;
+    }
+
+    .quiz-options { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .quiz-option {
+      display: block;
+      padding: 0.55rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.9rem;
+      background: #fafaf8;
+      transition: background 0.15s;
+      text-align: left;
+      width: 100%;
+    }
+
+    .quiz-option:hover:not(:disabled) { background: #f0ede6; }
+    .quiz-option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+    .quiz-option.wrong   { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+    .quiz-feedback {
+      display: none;
+      margin-top: 0.6rem;
+      font-size: 0.85rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+    }
+
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.ok   { background: #d4edda; color: #155724; }
+    .quiz-feedback.no   { background: #f8d7da; color: #721c24; }
+
+    .quiz-score {
+      display: none;
+      margin-top: 1.25rem;
+      padding: 0.75rem 1rem;
+      background: #f0ede6;
+      border-radius: 4px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    /* Footer */
+    .source-note {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid #d0cfc8;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.8rem;
+      color: #777;
+    }
+
+    .source-note a { color: #5a7bb5; text-decoration: none; }
+    .source-note a:hover { text-decoration: underline; }
+
+    .ask-teacher {
+      margin-top: 2rem;
+      padding: 1rem 1.25rem;
+      background: #eef2f8;
+      border-radius: 4px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.85rem;
+      color: #3a5a8a;
+    }
+
+    nav {
+      margin-top: 2.5rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.8rem;
+    }
+
+    nav a { color: #5a7bb5; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="lesson-meta">WebGIS &middot; Lesson 2 of ?</div>
+    <h1>Sources &amp; Layers:<br>How MapLibre Structures a Map</h1>
+  </header>
+
+  <h2>Two concepts, always together</h2>
+
+  <p>
+    Every map in MapLibre is built from two types of objects: <strong>sources</strong> and <strong>layers</strong>. They are always separate, and they always work together.
+  </p>
+
+  <p>
+    A <strong>source</strong> answers the question: <em>where does the data come from?</em><br>
+    A <strong>layer</strong> answers the question: <em>how should that data be drawn?</em>
+  </p>
+
+  <div class="key-idea">
+    <strong>Retain this</strong>
+    Sources hold data. Layers draw it. You never draw directly from a source — you always go through a layer. One source can feed multiple layers.
+  </div>
+
+  <h2>The map as a stack of layers</h2>
+
+  <p>
+    Think of your map as a stack of transparencies, rendered from bottom to top. The satellite image sits at the bottom. Everything else — field boundaries, annotations, labels — floats on top of it, in the order you define.
+  </p>
+
+  <div class="layer-stack">
+    <div class="stack-label">Example stack for a satellite + field annotation map</div>
+
+    <div class="stack-item" style="background:#f0ede6;">
+      <span class="stack-badge badge-layer">layer</span>
+      <span class="stack-name">field-labels</span>
+      <span class="stack-detail">type: symbol &nbsp;·&nbsp; text on top</span>
+    </div>
+    <div class="stack-item" style="background:#fef3c7;">
+      <span class="stack-badge badge-layer">layer</span>
+      <span class="stack-name">field-fill</span>
+      <span class="stack-detail">type: fill &nbsp;·&nbsp; yellow polygon</span>
+    </div>
+    <div class="stack-item" style="background:#dbeafe;">
+      <span class="stack-badge badge-layer">layer</span>
+      <span class="stack-name">field-outline</span>
+      <span class="stack-detail">type: line &nbsp;·&nbsp; white border</span>
+    </div>
+    <hr class="stack-divider" />
+    <div class="stack-item" style="background:#dcfce7;">
+      <span class="stack-badge badge-layer">layer</span>
+      <span class="stack-name">satellite</span>
+      <span class="stack-detail">type: raster &nbsp;·&nbsp; the photo tiles</span>
+    </div>
+
+    <div class="stack-arrow" style="margin-top:0.5rem;">↑ &nbsp; rendered last (on top)</div>
+    <div class="stack-arrow">↓ &nbsp; rendered first (at bottom)</div>
+  </div>
+
+  <p>
+    Notice: <code>field-fill</code>, <code>field-outline</code>, and <code>field-labels</code> could all share the <em>same</em> source — one <code>geojson</code> source containing the field polygons. Three layers, one source. This is intentional — it means you can style the same data multiple ways without duplicating it.
+  </p>
+
+  <h2>Source types you will use</h2>
+
+  <table class="types-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>What it holds</th>
+        <th>Your job context</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>raster</code></td>
+        <td>PNG/JPG tile URL template</td>
+        <td><span class="job-tag">satellite imagery</span></td>
+      </tr>
+      <tr>
+        <td><code>geojson</code></td>
+        <td>GeoJSON object or URL</td>
+        <td><span class="job-tag">annotations &amp; drawings</span></td>
+      </tr>
+      <tr>
+        <td><code>vector</code></td>
+        <td>Vector tile URL template</td>
+        <td>Base map roads, labels</td>
+      </tr>
+      <tr>
+        <td><code>image</code></td>
+        <td>One georeferenced image</td>
+        <td>Overlaying a single photo</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>In code: satellite map from scratch</h2>
+
+  <p>
+    Here is the minimum code to show a satellite map in MapLibre. Read each part — it maps directly onto the concepts above.
+  </p>
+
+  <div class="code-block"><span class="k">import</span> maplibregl <span class="k">from</span> <span class="s">'maplibre-gl'</span>;
+
+<span class="k">function</span> <span class="fn">initMap</span>(containerId, tileUrl) {
+  <span class="k">const</span> map = <span class="k">new</span> maplibregl.<span class="fn">Map</span>({
+    container: containerId,
+    style: {
+      version: <span class="n">8</span>,
+      sources: {},   <span class="c">// empty — we'll add below</span>
+      layers: []     <span class="c">// empty — we'll add below</span>
+    },
+    center: [<span class="n">-46.63</span>, <span class="n">-23.55</span>],  <span class="c">// [lng, lat]</span>
+    zoom: <span class="n">12</span>
+  });
+
+  map.<span class="fn">on</span>(<span class="s">'load'</span>, <span class="k">function</span>() {
+    <span class="fn">addSatelliteLayer</span>(map, tileUrl);
+  });
+
+  <span class="k">return</span> map;
+}
+
+<span class="k">function</span> <span class="fn">addSatelliteLayer</span>(map, tileUrl) {
+  <span class="c">// 1. Register the source — WHERE the data comes from</span>
+  map.<span class="fn">addSource</span>(<span class="s">'satellite'</span>, {
+    type: <span class="s">'raster'</span>,
+    tiles: [tileUrl],  <span class="c">// e.g. 'https://tiles.example.com/{z}/{x}/{y}.jpg'</span>
+    tileSize: <span class="n">256</span>
+  });
+
+  <span class="c">// 2. Add a layer — HOW to draw that source</span>
+  map.<span class="fn">addLayer</span>({
+    id: <span class="s">'satellite-layer'</span>,   <span class="c">// unique name for this layer</span>
+    type: <span class="s">'raster'</span>,          <span class="c">// must match source type for raster</span>
+    source: <span class="s">'satellite'</span>      <span class="c">// references the source by its id</span>
+  });
+}</span></div>
+  <div class="code-annotation">MapLibre expects coordinates as [longitude, latitude] — note the order. This trips up almost everyone at first.</div>
+
+  <h2>Adding a GeoJSON layer on top</h2>
+
+  <p>
+    Now add drawn annotations — a separate source and layer, stacked above the satellite. The satellite layer stays untouched.
+  </p>
+
+  <div class="code-block"><span class="k">function</span> <span class="fn">addAnnotationLayer</span>(map) {
+  <span class="c">// Source: a GeoJSON collection (starts empty)</span>
+  map.<span class="fn">addSource</span>(<span class="s">'annotations'</span>, {
+    type: <span class="s">'geojson'</span>,
+    data: {
+      type: <span class="s">'FeatureCollection'</span>,
+      features: []
+    }
+  });
+
+  <span class="c">// Layer: draw the polygons as filled shapes</span>
+  map.<span class="fn">addLayer</span>({
+    id: <span class="s">'annotations-fill'</span>,
+    type: <span class="s">'fill'</span>,
+    source: <span class="s">'annotations'</span>,
+    paint: {
+      <span class="s">'fill-color'</span>: <span class="s">'#ffff00'</span>,
+      <span class="s">'fill-opacity'</span>: <span class="n">0.3</span>
+    }
+  });
+
+  <span class="c">// Another layer — same source, draws the border</span>
+  map.<span class="fn">addLayer</span>({
+    id: <span class="s">'annotations-outline'</span>,
+    type: <span class="s">'line'</span>,
+    source: <span class="s">'annotations'</span>,
+    paint: {
+      <span class="s">'line-color'</span>: <span class="s">'#ffffff'</span>,
+      <span class="s">'line-width'</span>: <span class="n">2</span>
+    }
+  });
+}
+
+<span class="c">// Later, when the user draws a polygon, update the source:</span>
+<span class="k">function</span> <span class="fn">updateAnnotations</span>(map, newFeatures) {
+  map.<span class="fn">getSource</span>(<span class="s">'annotations'</span>).<span class="fn">setData</span>({
+    type: <span class="s">'FeatureCollection'</span>,
+    features: newFeatures
+  });
+  <span class="c">// Both layers update automatically — the source is the single source of truth</span>
+}</div>
+
+  <p>
+    Notice <code>updateAnnotations</code>: you update the <em>source</em>, not each layer individually. Both <code>annotations-fill</code> and <code>annotations-outline</code> re-render automatically because they share the source. This is the power of the source/layer split.
+  </p>
+
+  <div class="key-idea">
+    <strong>The pattern you will use constantly</strong>
+    When new data arrives (user draws a shape, API returns field boundaries), call <code>getSource(id).setData(newGeoJSON)</code>. The layers take care of themselves.
+  </div>
+
+  <!-- Quiz -->
+  <div class="quiz" id="quiz">
+    <h2>Check Your Understanding</h2>
+
+    <div class="quiz-question" id="q1">
+      <p>You want to show satellite imagery and draw yellow polygon annotations on top. How many sources do you need?</p>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="answer(this,'q1',false)">One source — layers handle the rest</button>
+        <button class="quiz-option" onclick="answer(this,'q1',true)">Two sources — one raster, one geojson</button>
+        <button class="quiz-option" onclick="answer(this,'q1',false)">Four sources — one per visual element</button>
+        <button class="quiz-option" onclick="answer(this,'q1',false)">Zero sources — MapLibre handles that</button>
+      </div>
+      <div class="quiz-feedback" id="q1-feedback"></div>
+    </div>
+
+    <div class="quiz-question" id="q2">
+      <p>You have a GeoJSON source with field polygons. You want to draw both a yellow fill AND a white border. What do you add?</p>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="answer(this,'q2',false)">Two sources — one per visual style</button>
+        <button class="quiz-option" onclick="answer(this,'q2',false)">One layer with two paint properties</button>
+        <button class="quiz-option" onclick="answer(this,'q2',true)">Two layers — both pointing at the same source</button>
+        <button class="quiz-option" onclick="answer(this,'q2',false)">Duplicate the source with different colors</button>
+      </div>
+      <div class="quiz-feedback" id="q2-feedback"></div>
+    </div>
+
+    <div class="quiz-question" id="q3">
+      <p>The user draws a new polygon. What is the correct way to make it appear on the map?</p>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="answer(this,'q3',false)">Call addLayer() with the new polygon</button>
+        <button class="quiz-option" onclick="answer(this,'q3',false)">Remove and re-add the source</button>
+        <button class="quiz-option" onclick="answer(this,'q3',true)">Call getSource('annotations').setData() with updated GeoJSON</button>
+        <button class="quiz-option" onclick="answer(this,'q3',false)">Re-initialize the map with a new style</button>
+      </div>
+      <div class="quiz-feedback" id="q3-feedback"></div>
+    </div>
+
+    <div class="quiz-question" id="q4">
+      <p>In the layer stack, which layer should you add first — satellite or annotations?</p>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="answer(this,'q4',false)">Annotations first — they are more important</button>
+        <button class="quiz-option" onclick="answer(this,'q4',true)">Satellite first — layers render bottom to top</button>
+        <button class="quiz-option" onclick="answer(this,'q4',false)">Order doesn't matter — MapLibre sorts them</button>
+        <button class="quiz-option" onclick="answer(this,'q4',false)">Satellite last — it must go on top to show</button>
+      </div>
+      <div class="quiz-feedback" id="q4-feedback"></div>
+    </div>
+
+    <div class="quiz-score" id="quiz-score"></div>
+  </div>
+
+  <div class="ask-teacher">
+    <strong>Something unclear?</strong> Ask your teacher directly. Good questions: "What is the <code>style</code> object in MapLibre?", "Can I add layers before the map loads?", "How does <code>addLayer</code> know where to insert in the stack?"
+  </div>
+
+  <div class="source-note">
+    <strong>Primary source for this lesson:</strong><br>
+    <a href="https://maplibre.org/maplibre-gl-js/docs/API/classes/Map/#addsource" target="_blank">MapLibre GL JS — Map.addSource()</a> and
+    <a href="https://maplibre.org/maplibre-gl-js/docs/API/classes/Map/#addlayer" target="_blank">Map.addLayer()</a> — the official API docs for exactly what you used here.
+  </div>
+
+  <nav>
+    ← <a href="./0001-how-web-maps-work-tiles.html">Lesson 1: The Tile System</a>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    Next: <a href="./0003-geojson-the-shape-format.html">Lesson 3: GeoJSON — The Shape Format</a>
+  </nav>
+
+</div>
+
+<script>
+  var answers = {};
+  var feedbacks = {
+    q1: {
+      ok: "Correct. Satellite imagery needs a raster source; the drawn polygons need a geojson source. Different data, different sources.",
+      no: "Not quite. You need two sources because the data is fundamentally different: raster tiles for the satellite photo, and GeoJSON for the polygon shapes."
+    },
+    q2: {
+      ok: "Correct. One source, two layers. Each layer applies a different paint rule to the same underlying data. This is exactly how MapLibre is designed to be used.",
+      no: "Not quite. In MapLibre you can stack multiple layers on a single source — one for the fill, one for the border. No need to duplicate data."
+    },
+    q3: {
+      ok: "Correct. Update the source — the layers re-render automatically. You never need to touch the layers when the data changes.",
+      no: "Not quite. The correct pattern is to update the source using setData(). All layers pointing at that source will re-render on their own."
+    },
+    q4: {
+      ok: "Correct. MapLibre renders layers in the order they were added — first added = bottom of the stack. Satellite must go first so annotations appear on top of it.",
+      no: "Not quite. Layers are drawn in the order they are added. Satellite first means it renders at the bottom, and annotations stack on top of it."
+    }
+  };
+
+  function answer(btn, questionId, isCorrect) {
+    if (answers[questionId] !== undefined) return;
+    answers[questionId] = isCorrect;
+
+    var options = btn.parentElement.querySelectorAll('.quiz-option');
+    options.forEach(function(opt) { opt.disabled = true; });
+
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    var feedback = document.getElementById(questionId + '-feedback');
+    feedback.textContent = isCorrect ? feedbacks[questionId].ok : feedbacks[questionId].no;
+    feedback.className = 'quiz-feedback show ' + (isCorrect ? 'ok' : 'no');
+
+    if (Object.keys(answers).length === 4) {
+      var score = Object.values(answers).filter(Boolean).length;
+      var el = document.getElementById('quiz-score');
+      el.style.display = 'block';
+      el.textContent = 'You got ' + score + ' of 4 correct. ' + (
+        score === 4 ? 'The source/layer model is yours. Move to lesson 3.' :
+        score >= 2 ? 'Good — re-read the sections where you slipped.' :
+        'Review the lesson carefully, then try again.'
+      );
+    }
+  }
+</script>
+</body>
+</html>

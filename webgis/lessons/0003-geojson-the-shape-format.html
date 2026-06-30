@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 3 — GeoJSON: The Shape Format</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #fafaf8;
+      padding: 2rem 1rem 6rem;
+    }
+
+    .page { max-width: 680px; margin: 0 auto; }
+
+    header {
+      border-bottom: 1px solid #d0cfc8;
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .lesson-meta {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: normal;
+      line-height: 1.25;
+      color: #111;
+    }
+
+    h2 {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #888;
+      margin: 2.5rem 0 0.75rem;
+    }
+
+    p { margin-bottom: 1.2rem; }
+
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      background: #ede9e0;
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+    }
+
+    .key-idea {
+      background: #f0ede6;
+      border-left: 3px solid #8b7355;
+      padding: 1rem 1.25rem;
+      margin: 2rem 0;
+      font-style: italic;
+    }
+
+    .key-idea strong {
+      font-style: normal;
+      display: block;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8b7355;
+      margin-bottom: 0.4rem;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border-left: 3px solid #d4a017;
+      padding: 1rem 1.25rem;
+      margin: 2rem 0;
+    }
+
+    .warning strong {
+      display: block;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #b07800;
+      margin-bottom: 0.4rem;
+    }
+
+    /* Geometry visual */
+    .geometry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .geo-card {
+      border: 1px solid #d0cfc8;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .geo-canvas {
+      display: block;
+      width: 100%;
+      height: 90px;
+      background: #f5f3ee;
+    }
+
+    .geo-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #444;
+      padding: 0.4rem 0.6rem 0.35rem;
+      border-top: 1px solid #e8e4dc;
+      text-align: center;
+    }
+
+    .geo-use {
+      font-size: 0.65rem;
+      color: #888;
+      padding: 0 0.6rem 0.4rem;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* JSON anatomy */
+    .json-anatomy {
+      position: relative;
+      margin: 1.5rem 0;
+    }
+
+    .code-block {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      padding: 1.25rem 1.5rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      line-height: 1.8;
+      tab-size: 2;
+    }
+
+    .code-block .c  { color: #6c7086; }
+    .code-block .k  { color: #cba6f7; }
+    .code-block .s  { color: #a6e3a1; }
+    .code-block .p  { color: #89dceb; }
+    .code-block .n  { color: #fab387; }
+    .code-block .fn { color: #89b4fa; }
+    .code-block .hi { background: rgba(243,184,45,0.18); border-radius: 2px; }
+    .code-block .type-val { color: #f38ba8; }
+
+    .code-annotation {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: -0.75rem;
+      margin-bottom: 1.5rem;
+      padding-left: 0.25rem;
+    }
+
+    /* Hierarchy diagram */
+    .hierarchy {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 1.5rem 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .hier-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .hier-indent { width: 2rem; flex-shrink: 0; position: relative; }
+    .hier-indent::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      border-left: 1px solid #ccc;
+    }
+
+    .hier-box {
+      flex: 1;
+      border: 1px solid #ccc;
+      padding: 0.5rem 0.85rem;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .hier-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #222;
+    }
+
+    .hier-desc {
+      font-size: 0.75rem;
+      color: #777;
+      margin-top: 0.15rem;
+      line-height: 1.35;
+    }
+
+    .hier-box.fc  { border-color: #93c5fd; background: #eff6ff; }
+    .hier-box.feat { border-color: #86efac; background: #f0fdf4; }
+    .hier-box.geom { border-color: #fca5a5; background: #fff1f2; }
+    .hier-box.props { border-color: #fcd34d; background: #fffbeb; }
+
+    /* Interactive explorer */
+    .explorer {
+      margin: 2rem 0;
+      border: 1px solid #d0cfc8;
+      border-radius: 6px;
+      overflow: hidden;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .explorer-tabs {
+      display: flex;
+      background: #ede9e0;
+      border-bottom: 1px solid #d0cfc8;
+    }
+
+    .explorer-tab {
+      padding: 0.55rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #777;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .explorer-tab.active {
+      color: #1a1a1a;
+      border-bottom-color: #8b7355;
+      background: #fafaf8;
+    }
+
+    .explorer-content { display: none; }
+    .explorer-content.active { display: block; }
+
+    .explorer-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .explorer-code {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      padding: 1rem 1.25rem;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+
+    .explorer-map {
+      background: #f5f3ee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .explorer-map svg {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+    }
+
+    /* Quiz */
+    .quiz {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin: 2.5rem 0;
+    }
+
+    .quiz h2 { margin-top: 0; color: #333; }
+    .quiz-question { margin-bottom: 1.75rem; }
+    .quiz-question:last-of-type { margin-bottom: 0; }
+
+    .quiz-question p {
+      font-weight: bold;
+      margin-bottom: 0.6rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.95rem;
+    }
+
+    .quiz-options { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .quiz-option {
+      display: block;
+      padding: 0.55rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.88rem;
+      background: #fafaf8;
+      transition: background 0.15s;
+      text-align: left;
+      width: 100%;
+      line-height: 1.4;
+    }
+
+    .quiz-option:hover:not(:disabled) { background: #f0ede6; }
+    .quiz-option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+    .quiz-option.wrong   { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+    .quiz-feedback {
+      display: none;
+      margin-top: 0.6rem;
+      font-size: 0.85rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+    }
+
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.ok   { background: #d4edda; color: #155724; }
+    .quiz-feedback.no   { background: #f8d7da; color: #721c24; }
+
+    .quiz-score {
+      display: none;
+      margin-top: 1.25rem;
+      padding: 0.75rem 1rem;
+      background: #f0ede6;
+      border-radius: 4px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .source-note {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid #d0cfc8;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.8rem;
+      color: #777;
+    }
+
+    .source-note a { color: #5a7bb5; text-decoration: none; }
+    .source-note a:hover { text-decoration: underline; }
+
+    .ask-teacher {
+      margin-top: 2rem;
+      padding: 1rem 1.25rem;
+      background: #eef2f8;
+      border-radius: 4px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.85rem;
+      color: #3a5a8a;
+    }
+
+    nav {
+      margin-top: 2.5rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.8rem;
+    }
+
+    nav a { color: #5a7bb5; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+
+    @media (max-width: 520px) {
+      .geometry-grid { grid-template-columns: 1fr 1fr; }
+      .explorer-panel { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="lesson-meta">WebGIS &middot; Lesson 3 of ?</div>
+    <h1>GeoJSON:<br>The Shape Format</h1>
+  </header>
+
+  <h2>What GeoJSON is</h2>
+
+  <p>
+    GeoJSON is a JSON format for describing geographic shapes and their metadata. It is the universal language of web mapping: drawing tools produce it, APIs return it, and MapLibre's <code>geojson</code> source consumes it directly.
+  </p>
+
+  <p>
+    You do not need a special library to work with it. It is just JSON with a well-defined structure. If you can write a JavaScript object, you can write GeoJSON.
+  </p>
+
+  <div class="key-idea">
+    <strong>Retain this</strong>
+    GeoJSON has three levels: <strong>Geometry</strong> (the raw shape), <strong>Feature</strong> (shape + metadata), and <strong>FeatureCollection</strong> (an array of features). MapLibre always expects a FeatureCollection.
+  </div>
+
+  <h2>The three levels</h2>
+
+  <div class="hierarchy">
+    <div class="hier-row">
+      <div class="hier-box fc">
+        <div class="hier-title">FeatureCollection</div>
+        <div class="hier-desc">The top-level object. Contains an array of Features. This is what you pass to <code>addSource</code> and <code>setData</code>.</div>
+      </div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-indent"></div>
+      <div class="hier-box feat">
+        <div class="hier-title">Feature</div>
+        <div class="hier-desc">One item in the collection. Wraps a Geometry and adds a <code>properties</code> object for metadata (name, area, crop type…).</div>
+      </div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-indent"></div>
+      <div class="hier-indent"></div>
+      <div class="hier-box geom">
+        <div class="hier-title">Geometry</div>
+        <div class="hier-desc">The actual shape: Point, LineString, or Polygon (plus their Multi- variants). Contains only coordinates.</div>
+      </div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-indent"></div>
+      <div class="hier-indent"></div>
+      <div class="hier-box props">
+        <div class="hier-title">Properties</div>
+        <div class="hier-desc">Any key-value metadata you want to attach: <code>{ "name": "Field A", "area_ha": 12.4 }</code>. MapLibre can use these to style layers conditionally.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Geometry types</h2>
+
+  <div class="geometry-grid">
+    <div class="geo-card">
+      <canvas class="geo-canvas" id="canvas-point"></canvas>
+      <div class="geo-name">Point</div>
+      <div class="geo-use">Sample location, marker, sensor</div>
+    </div>
+    <div class="geo-card">
+      <canvas class="geo-canvas" id="canvas-line"></canvas>
+      <div class="geo-name">LineString</div>
+      <div class="geo-use">Path, transect, road</div>
+    </div>
+    <div class="geo-card">
+      <canvas class="geo-canvas" id="canvas-polygon"></canvas>
+      <div class="geo-name">Polygon</div>
+      <div class="geo-use">Field boundary, annotation area</div>
+    </div>
+  </div>
+
+  <p>
+    There are also <code>MultiPoint</code>, <code>MultiLineString</code>, and <code>MultiPolygon</code> for cases where one Feature needs to represent several disconnected shapes of the same type — for example, a farm split into two separate plots.
+  </p>
+
+  <h2>The coordinate gotcha</h2>
+
+  <div class="warning">
+    <strong>Common mistake</strong>
+    GeoJSON coordinates are <strong>[longitude, latitude]</strong> — in that order. This is the opposite of how most people say it ("lat, lng"). MapLibre also expects [lng, lat]. If your shapes appear in the wrong place or at sea, check coordinate order first.
+  </div>
+
+  <p>
+    Memory trick: GeoJSON follows the mathematical convention of (x, y) — and on a map, longitude is the horizontal axis (x) and latitude is vertical (y). So: x = lng = first. Always.
+  </p>
+
+  <h2>What the JSON looks like</h2>
+
+  <p>
+    Here is a complete, minimal FeatureCollection with one polygon — a field boundary:
+  </p>
+
+  <div class="code-block"><span class="c">// A complete GeoJSON FeatureCollection</span>
+{
+  <span class="s">"type"</span>: <span class="s"><span class="type-val">"FeatureCollection"</span></span>,
+  <span class="s">"features"</span>: [
+    {
+      <span class="s">"type"</span>: <span class="s"><span class="type-val">"Feature"</span></span>,
+      <span class="s">"geometry"</span>: {
+        <span class="s">"type"</span>: <span class="s"><span class="type-val">"Polygon"</span></span>,
+        <span class="s">"coordinates"</span>: [
+          <span class="c">// outer ring — array of [lng, lat] positions</span>
+          [
+            [<span class="n">-46.640</span>, <span class="n">-23.548</span>],
+            [<span class="n">-46.638</span>, <span class="n">-23.548</span>],
+            [<span class="n">-46.638</span>, <span class="n">-23.550</span>],
+            [<span class="n">-46.640</span>, <span class="n">-23.550</span>],
+            [<span class="n">-46.640</span>, <span class="n">-23.548</span>]  <span class="c">// must close: repeat first point</span>
+          ]
+        ]
+      },
+      <span class="s">"properties"</span>: {
+        <span class="s">"name"</span>: <span class="s">"Field A"</span>,
+        <span class="s">"crop"</span>: <span class="s">"soy"</span>,
+        <span class="s">"area_ha"</span>: <span class="n">12.4</span>
+      }
+    }
+  ]
+}</div>
+
+  <p>
+    Two things to notice: the polygon's outer ring is an array wrapped in another array (because a Polygon can have holes — more on that later). And the ring closes by repeating the first coordinate at the end.
+  </p>
+
+  <h2>Working with it in JavaScript</h2>
+
+  <p>
+    In practice you will build GeoJSON objects from user interactions or API responses, then push them into MapLibre. Here is the full pattern from lesson 2, shown with real GeoJSON:
+  </p>
+
+  <div class="code-block"><span class="c">// Build a GeoJSON feature from coordinates the user drew</span>
+<span class="k">function</span> <span class="fn">buildFieldFeature</span>(lngLatRing, properties) {
+  <span class="k">const</span> closed = [...lngLatRing, lngLatRing[<span class="n">0</span>]]; <span class="c">// close the ring</span>
+  <span class="k">return</span> {
+    type: <span class="s">'Feature'</span>,
+    geometry: {
+      type: <span class="s">'Polygon'</span>,
+      coordinates: [closed]
+    },
+    properties: properties
+  };
+}
+
+<span class="c">// Build a FeatureCollection from an array of features</span>
+<span class="k">function</span> <span class="fn">toCollection</span>(features) {
+  <span class="k">return</span> { type: <span class="s">'FeatureCollection'</span>, features: features };
+}
+
+<span class="c">// Push into MapLibre — same pattern as lesson 2</span>
+<span class="k">function</span> <span class="fn">renderFields</span>(map, fields) {
+  <span class="k">const</span> features = fields.<span class="fn">map</span>(<span class="k">function</span>(field) {
+    <span class="k">return</span> <span class="fn">buildFieldFeature</span>(field.ring, { name: field.name, crop: field.crop });
+  });
+  map.<span class="fn">getSource</span>(<span class="s">'annotations'</span>).<span class="fn">setData</span>(<span class="fn">toCollection</span>(features));
+}</div>
+
+  <h2>Interactive explorer</h2>
+
+  <p>
+    Click each tab to see what the GeoJSON looks like for the three main geometry types, and how it maps to a shape.
+  </p>
+
+  <div class="explorer">
+    <div class="explorer-tabs">
+      <button class="explorer-tab active" onclick="showTab('point')">Point</button>
+      <button class="explorer-tab" onclick="showTab('line')">LineString</button>
+      <button class="explorer-tab" onclick="showTab('polygon')">Polygon</button>
+    </div>
+
+    <div class="explorer-content active" id="tab-point">
+      <div class="explorer-panel">
+        <div class="explorer-code"><span style="color:#6c7086">{
+  "type": "</span><span style="color:#f38ba8">Feature</span><span style="color:#6c7086">",
+  "geometry": {
+    "type": "</span><span style="color:#f38ba8">Point</span><span style="color:#6c7086">",
+    "coordinates": [</span>
+  <span style="color:#fab387">-46.638</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.549</span><span style="color:#6c7086">]
+            ↑ lng   ↑ lat
+  },
+  "properties": {
+    "name": "</span><span style="color:#a6e3a1">Sensor #1</span><span style="color:#6c7086">",
+    "value": </span><span style="color:#fab387">42.1</span><span style="color:#6c7086">
+  }
+}</span></div>
+        <div class="explorer-map">
+          <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+            <rect width="160" height="120" fill="#4a7c59" rx="4"/>
+            <circle cx="80" cy="60" r="10" fill="#f38ba8" stroke="#fff" stroke-width="2"/>
+            <circle cx="80" cy="60" r="3" fill="#fff"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="explorer-content" id="tab-line">
+      <div class="explorer-panel">
+        <div class="explorer-code"><span style="color:#6c7086">{
+  "type": "</span><span style="color:#f38ba8">Feature</span><span style="color:#6c7086">",
+  "geometry": {
+    "type": "</span><span style="color:#f38ba8">LineString</span><span style="color:#6c7086">",
+    "coordinates": [
+      [</span><span style="color:#fab387">-46.642</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.546</span><span style="color:#6c7086">],
+      [</span><span style="color:#fab387">-46.638</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.549</span><span style="color:#6c7086">],
+      [</span><span style="color:#fab387">-46.641</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.553</span><span style="color:#6c7086">]
+    ]
+  },
+  "properties": {
+    "name": "</span><span style="color:#a6e3a1">Transect A</span><span style="color:#6c7086">"
+  }
+}</span></div>
+        <div class="explorer-map">
+          <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+            <rect width="160" height="120" fill="#4a7c59" rx="4"/>
+            <polyline points="30,25 80,60 50,100" fill="none" stroke="#89b4fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="30" cy="25" r="4" fill="#89b4fa"/>
+            <circle cx="80" cy="60" r="4" fill="#89b4fa"/>
+            <circle cx="50" cy="100" r="4" fill="#89b4fa"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="explorer-content" id="tab-polygon">
+      <div class="explorer-panel">
+        <div class="explorer-code"><span style="color:#6c7086">{
+  "type": "</span><span style="color:#f38ba8">Feature</span><span style="color:#6c7086">",
+  "geometry": {
+    "type": "</span><span style="color:#f38ba8">Polygon</span><span style="color:#6c7086">",
+    "coordinates": [
+      [            ← outer ring
+        [</span><span style="color:#fab387">-46.640</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.548</span><span style="color:#6c7086">],
+        [</span><span style="color:#fab387">-46.635</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.548</span><span style="color:#6c7086">],
+        [</span><span style="color:#fab387">-46.635</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.553</span><span style="color:#6c7086">],
+        [</span><span style="color:#fab387">-46.640</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.553</span><span style="color:#6c7086">],
+        [</span><span style="color:#fab387">-46.640</span><span style="color:#6c7086">, </span><span style="color:#fab387">-23.548</span><span style="color:#6c7086">]  ← closed
+      ]
+    ]
+  },
+  "properties": {
+    "name": "</span><span style="color:#a6e3a1">Field A</span><span style="color:#6c7086">",
+    "crop": "</span><span style="color:#a6e3a1">soy</span><span style="color:#6c7086">"
+  }
+}</span></div>
+        <div class="explorer-map">
+          <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+            <rect width="160" height="120" fill="#4a7c59" rx="4"/>
+            <polygon points="30,20 130,20 130,100 30,100" fill="rgba(250,191,55,0.35)" stroke="#ffff00" stroke-width="2.5"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="quiz" id="quiz">
+    <h2>Check Your Understanding</h2>
+
+    <div class="quiz-question" id="q1">
+      <p>What is the correct coordinate order in GeoJSON?</p>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="answer(this,'q1',false)">[latitude, longitude]</button>
+        <button class="quiz-option" onclick="answer(this,'q1',true)">[longitude, latitude]</button>
+        <button class="quiz-option" onclick="answer(this,'q1',false)">[x-pixels, y-pixels]</button>
+        <button class="quiz-option" onclick="answer(this,'q1',false)">[altitude, latitude]</button>
+      </div>
+      <div class="quiz-feedback" id="q1-feedback"></div>
+    </div>
+
+    <div class="quiz-question" id="q2">
+      <p>You receive an array of field polygons from an API. What GeoJSON type do you build to pass to MapLibre's <code>setData()</code>?</p>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="answer(this,'q2',false)">An array of Geometry objects</button>
+        <button class="quiz-option" onclick="answer(this,'q2',false)">A single Feature wrapping all polygons</button>
+        <button class="quiz-option" onclick="answer(this,'q2',true)">A FeatureCollection containing one Feature per polygon</button>
+        <button class="quiz-option" onclick="answer(this,'q2',false)">A MultiPolygon Geometry with no properties</button>
+      </div>
+      <div class="quiz-feedback" id="q2-feedback"></div>
+    </div>
+
+    <div class="quiz-question" id="q3">
+      <p>A user draws a single field boundary on the map. Your drawing tool returns an array of [lng, lat] positions. Which geometry type do you use?</p>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="answer(this,'q3',false)">LineString — it's a series of connected points</button>
+        <button class="quiz-option" onclick="answer(this,'q3',false)">MultiPoint — one point per corner</button>
+        <button class="quiz-option" onclick="answer(this,'q3',true)">Polygon — a closed area with an outer ring</button>
+        <button class="quiz-option" onclick="answer(this,'q3',false)">Feature — it holds the coordinates directly</button>
+      </div>
+      <div class="quiz-feedback" id="q3-feedback"></div>
+    </div>
+
+    <div class="quiz-question" id="q4">
+      <p>Where do you store the field name, crop type, and area in a GeoJSON Feature?</p>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="answer(this,'q4',false)">Inside the geometry's coordinates array</button>
+        <button class="quiz-option" onclick="answer(this,'q4',false)">As extra keys at the Feature's top level</button>
+        <button class="quiz-option" onclick="answer(this,'q4',true)">In the Feature's <code>properties</code> object</button>
+        <button class="quiz-option" onclick="answer(this,'q4',false)">In the FeatureCollection, not the Feature</button>
+      </div>
+      <div class="quiz-feedback" id="q4-feedback"></div>
+    </div>
+
+    <div class="quiz-score" id="quiz-score"></div>
+  </div>
+
+  <div class="ask-teacher">
+    <strong>Something unclear?</strong> Ask your teacher. Good questions: "What are Polygon holes and when do I need them?", "How do I validate GeoJSON before sending to MapLibre?", "How do I convert from lat/lng objects to GeoJSON coordinates?"
+  </div>
+
+  <div class="source-note">
+    <strong>Primary source for this lesson:</strong><br>
+    <a href="https://datatracker.ietf.org/doc/html/rfc7946" target="_blank">RFC 7946 — The GeoJSON Format</a> — the official specification. Sections 3.1 (Geometry) and 3.2 (Feature) are the parts most relevant to your daily work.<br><br>
+    Also useful: <a href="https://geojson.io" target="_blank">geojson.io</a> — paste or draw GeoJSON and see it on a map instantly. Great for debugging coordinate issues.
+  </div>
+
+  <nav>
+    ← <a href="./0002-sources-and-layers.html">Lesson 2: Sources &amp; Layers</a>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    Next: <a href="./0004-maplibre-in-react.html">Lesson 4: MapLibre in React</a>
+  </nav>
+
+</div>
+
+<script>
+  /* Geometry canvases */
+  function drawPoint(canvas) {
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = canvas.offsetWidth * devicePixelRatio;
+    var h = canvas.height = canvas.offsetHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    var W = canvas.offsetWidth, H = canvas.offsetHeight;
+    ctx.fillStyle = '#4a7c59';
+    ctx.fillRect(0, 0, W, H);
+    ctx.beginPath();
+    ctx.arc(W/2, H/2, 10, 0, Math.PI * 2);
+    ctx.fillStyle = '#f38ba8';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(W/2, H/2, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+
+  function drawLine(canvas) {
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = canvas.offsetWidth * devicePixelRatio;
+    var h = canvas.height = canvas.offsetHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    var W = canvas.offsetWidth, H = canvas.offsetHeight;
+    ctx.fillStyle = '#4a7c59';
+    ctx.fillRect(0, 0, W, H);
+    ctx.beginPath();
+    ctx.moveTo(W*0.15, H*0.2);
+    ctx.lineTo(W*0.6, H*0.55);
+    ctx.lineTo(W*0.35, H*0.85);
+    ctx.strokeStyle = '#89b4fa';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    [[W*0.15, H*0.2],[W*0.6, H*0.55],[W*0.35, H*0.85]].forEach(function(pt) {
+      ctx.beginPath();
+      ctx.arc(pt[0], pt[1], 4, 0, Math.PI*2);
+      ctx.fillStyle = '#89b4fa';
+      ctx.fill();
+    });
+  }
+
+  function drawPolygon(canvas) {
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = canvas.offsetWidth * devicePixelRatio;
+    var h = canvas.height = canvas.offsetHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    var W = canvas.offsetWidth, H = canvas.offsetHeight;
+    ctx.fillStyle = '#4a7c59';
+    ctx.fillRect(0, 0, W, H);
+    ctx.beginPath();
+    ctx.moveTo(W*0.15, H*0.2);
+    ctx.lineTo(W*0.85, H*0.2);
+    ctx.lineTo(W*0.85, H*0.82);
+    ctx.lineTo(W*0.15, H*0.82);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(250,191,55,0.3)';
+    ctx.fill();
+    ctx.strokeStyle = '#ffff00';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+  }
+
+  window.addEventListener('load', function() {
+    drawPoint(document.getElementById('canvas-point'));
+    drawLine(document.getElementById('canvas-line'));
+    drawPolygon(document.getElementById('canvas-polygon'));
+  });
+
+  /* Explorer tabs */
+  function showTab(name) {
+    document.querySelectorAll('.explorer-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.explorer-content').forEach(function(c) { c.classList.remove('active'); });
+    document.getElementById('tab-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  /* Quiz */
+  var answers = {};
+  var feedbacks = {
+    q1: {
+      ok: "Correct. GeoJSON uses [longitude, latitude] — the mathematical (x, y) convention. This is backwards from how most people say coordinates out loud.",
+      no: "Not quite. GeoJSON uses [longitude, latitude] — longitude first. This is the most common mistake when starting with GeoJSON."
+    },
+    q2: {
+      ok: "Correct. MapLibre's setData() always expects a FeatureCollection. Wrap each polygon in a Feature (to hold its properties), then wrap all features in a FeatureCollection.",
+      no: "Not quite. MapLibre always expects a FeatureCollection — a top-level object with a features array. Each polygon becomes one Feature inside that array."
+    },
+    q3: {
+      ok: "Correct. A closed area is a Polygon. A LineString would not fill — it is just a path. Remember: wrap the coordinate ring in an extra array, and repeat the first point at the end.",
+      no: "Not quite. A drawn boundary enclosing an area is a Polygon. A LineString is an open path. The Polygon type is what enables fill layers to paint the inside of the shape."
+    },
+    q4: {
+      ok: "Correct. Metadata always goes in properties. The geometry contains only spatial coordinates — nothing else. MapLibre paint expressions can then read from properties to style features differently.",
+      no: "Not quite. GeoJSON separates spatial data (geometry.coordinates) from metadata (properties). Name, crop type, area — all of that goes in the properties object."
+    }
+  };
+
+  function answer(btn, questionId, isCorrect) {
+    if (answers[questionId] !== undefined) return;
+    answers[questionId] = isCorrect;
+    btn.parentElement.querySelectorAll('.quiz-option').forEach(function(o) { o.disabled = true; });
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    var fb = document.getElementById(questionId + '-feedback');
+    fb.textContent = isCorrect ? feedbacks[questionId].ok : feedbacks[questionId].no;
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'ok' : 'no');
+    if (Object.keys(answers).length === 4) {
+      var score = Object.values(answers).filter(Boolean).length;
+      var el = document.getElementById('quiz-score');
+      el.style.display = 'block';
+      el.textContent = 'You got ' + score + ' of 4 correct. ' + (
+        score === 4 ? 'GeoJSON is yours. Ready for lesson 4: MapLibre in React.' :
+        score >= 2 ? 'Good start. Re-read the sections you missed before moving on.' :
+        'Review the lesson carefully, then try again.'
+      );
+    }
+  }
+</script>
+</body>
+</html>
