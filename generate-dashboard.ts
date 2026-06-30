@@ -14,7 +14,7 @@ function prettify(name: string): string {
 
 function extractH1(html: string): string {
   const match = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
-  return match ? match[1].replace(/<[^>]+>/g, '').trim() : 'Untitled';
+  return match ? match[1].replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() : 'Untitled';
 }
 
 interface Lesson {
